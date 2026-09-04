@@ -98,7 +98,7 @@ Klien memetakan `response_code` → `AppFailure`, dan **tidak pernah mencocokkan
 | 403 | `account_inactive` | siswa dinonaktifkan | logout + pesan hubungi sekolah |
 | 403 | `forbidden` | tidak berhak | pesan generik |
 | 404 | `not_found` | tidak ada / tidak terdaftar di kelas | pesan generik, jangan bocorkan keberadaan |
-| 409 | `conflict` | state bentrok (mis. sesi ujian sudah disubmit) | refresh state dari server |
+| 409 | `conflict` | state bentrok (mis. kiriman dengan kunci sama masih diproses) | refresh state dari server |
 | 413 | `payload_too_large` | file/batch kelalu besar | pesan + jangan retry |
 | 422 | `validation_failed` | validasi gagal | tampilkan `fields` di form |
 | 426 | `client_too_old` | versi app di bawah minimum | layar force update |
@@ -415,8 +415,27 @@ Auto-save satu jawaban. Rate limit lebih longgar (120/menit).
 Response `204`. Aman dipanggil berulang untuk soal yang sama.
 
 #### `POST /exams/sessions/{session}/submit`
-Mengunci sesi. Body opsional `{ "reason": "manual" | "timeout" }`.
-`409` kalau sesi sudah tersubmit — klien harus refresh, bukan menampilkan error merah.
+Mengunci sesi. Tanpa body.
+
+⚠️ **Idempoten, dan sengaja membalas `200` walau sesi sudah tersubmit** — bukan
+`409`. Klien mengulang kiriman saat responsnya hilang di jaringan buruk; kalau
+pengulangan itu dibalas error, siswa melihat layar merah untuk ujian yang
+sebenarnya sudah aman terkumpul, dan klien harus punya logika khusus yang
+memperlakukan sebuah error sebagai sukses.
+
+`submitted_at` yang dikembalikan selalu waktu submit **pertama** — tidak bergeser
+walau dikirim ulang berkali-kali.
+
+```json
+{
+  "response_code": "success",
+  "response_message": "Ujian berhasil dikumpulkan.",
+  "response_data": {
+    "session_id": "uuid",
+    "submitted_at": "2026-09-08T07:58:12+07:00"
+  }
+}
+```
 
 #### `GET /exams/sessions/{session}/result`
 `403` (atau `data.results_released = false`) selama `results_released_at` belum lewat.
