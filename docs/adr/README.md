@@ -35,7 +35,8 @@ Catatan keputusan arsitektur untuk `learn_mobile`. Alasan formatnya ada di
 | [0012](0012-learning-progress-tracking-mobile.md) | Pelacakan progress belajar terbatas & transparan | Accepted |
 | [0013](0013-versioning-api-dan-force-update.md) | Versi API di path + mekanisme force update | Accepted |
 | [0014](0014-strategi-testing.md) | Strategi testing berbasis risiko | Accepted |
-| [0015](0015-format-error-api.md) | Format error API dengan kode mesin | Accepted |
+| [0015](0015-format-error-api.md) | Format error API dengan kode mesin | ~~Superseded by 0016~~ |
+| [0016](0016-envelope-response-seragam.md) | Envelope response seragam `response_code`/`response_message`/`response_data` | Accepted |
 
 ⚠️ ADR-0005 dan 0006 berstatus **Proposed** — menunggu keputusan final tim.
 Sisanya sudah disepakati saat perencanaan 4 September 2026.

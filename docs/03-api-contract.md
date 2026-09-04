@@ -25,34 +25,72 @@ Header `X-Client-Version` dipakai untuk force-update — lihat
 
 ## Format response
 
-**Sukses** — bentuknya mengikuti Action terkait, dibungkus konsisten:
+Semua response — sukses maupun gagal — memakai **satu envelope yang sama**.
+Lihat [ADR-0016](adr/0016-envelope-response-seragam.md).
 
-```json
-{ "data": { ... } }
-```
-
-Untuk daftar berhalaman:
+**Dengan data:**
 
 ```json
 {
-  "data": [ ... ],
-  "meta": { "current_page": 1, "last_page": 3, "total": 42 }
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": { }
 }
 ```
 
-**Error** — satu bentuk untuk semua, lihat [ADR-0015](adr/0015-format-error-api.md):
+**Tanpa data** (aksi yang tidak mengembalikan apa-apa, dan semua error):
 
 ```json
 {
-  "error": {
-    "code": "validation_failed",
-    "message": "NISN atau password salah.",
-    "fields": { "nisn": ["NISN atau password salah."] }
+  "response_code": "success",
+  "response_message": "Berhasil"
+}
+```
+
+Untuk daftar berhalaman, `meta` masuk ke dalam `response_data`:
+
+```json
+{
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
+    "items": [ ],
+    "meta": { "current_page": 1, "last_page": 3, "total": 42 }
   }
 }
 ```
 
-| HTTP | `code` | Arti | Aksi klien |
+**Error:**
+
+```json
+{
+  "response_code": "validation_failed",
+  "response_message": "NISN atau password salah.",
+  "response_data": { "fields": { "nisn": ["NISN atau password salah."] } }
+}
+```
+
+### Aturan envelope
+
+| Field | Isi |
+|-------|-----|
+| `response_code` | **kode mesin** `snake_case` yang stabil — untuk dibaca program |
+| `response_message` | bahasa Indonesia — untuk dibaca siswa |
+| `response_data` | payload; **dihilangkan** kalau tidak ada data |
+
+⚠️ `response_code` memuat **kode mesin, bukan HTTP status**. Ini disengaja:
+`403` bisa berarti "password masih default" (harus redirect ke ganti password)
+atau "kamu tidak berhak" (pesan generik) — dua hal yang perlakuannya berlawanan.
+Kalau `response_code` hanya berisi `"403"`, klien tidak bisa membedakannya dan
+akan menjebak siswa di layar error tanpa jalan keluar.
+
+HTTP status tetap dikirim dengan benar di header — envelope melengkapi, bukan
+menggantikan.
+
+Klien memetakan `response_code` → `AppFailure`, dan **tidak pernah mencocokkan
+`response_message`**.
+
+| HTTP | `response_code` | Arti | Aksi klien |
 |------|--------|------|------------|
 | 400 | `bad_request` | payload rusak | tampilkan pesan, jangan retry |
 | 401 | `unauthenticated` | token invalid/dicabut | hapus token, ke layar login |
@@ -88,7 +126,9 @@ Request:
 Response `200`:
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "token": "12|xxxxxxxxxxxxxxxxxxxx",
     "must_change_password": true,
     "student": {
@@ -124,7 +164,9 @@ Membungkus `GetStudentDashboard`.
 
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "courses": [{
       "id": "uuid", "subject_name": "Matematika", "subject_code": "MTK",
       "classroom_name": "X IPA 1", "teacher_name": "Ibu Sari",
@@ -159,7 +201,9 @@ Membungkus `BuildStudentTodoList`.
 
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "today": [{
       "kind": "assignment", "state": "pending", "id": "uuid",
       "title": "Latihan Soal Bab 2", "subject_name": "Matematika",
@@ -189,7 +233,9 @@ Membungkus `GetStudentCourse`.
 
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "course": {
       "id": "uuid", "subject_name": "Matematika", "subject_code": "MTK",
       "classroom_name": "X IPA 1", "teacher_name": "Ibu Sari",
@@ -240,7 +286,9 @@ Membungkus `GetStudentAssignment`.
 
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "course": { "id": "uuid", "subject_name": "...", "subject_code": "...",
                 "classroom_name": "...", "teacher_name": "..." },
     "material": { "id": "uuid", "title": "...", "topic": "..." },
@@ -325,7 +373,9 @@ Membungkus `GetStudentExamSession`.
 
 ```json
 {
-  "data": {
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
     "session": {
       "id": "uuid", "started_at": "...",
       "expires_at": "2026-09-08T08:00:00+07:00",
@@ -421,8 +471,14 @@ Upload foto (multipart) dan laporan progress belajar (`GetStudentProgress`).
 ### `GET /notifications`
 Sudah berbentuk JSON di web dan bisa dipakai apa adanya:
 ```json
-{ "data": [ { "id": "...", "data": {...}, "read_at": null, "created_at": "..." } ],
-  "meta": { "current_page": 1, "last_page": 2, "total": 23 } }
+{
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
+    "items": [ { "id": "...", "data": {...}, "read_at": null, "created_at": "..." } ],
+    "meta": { "current_page": 1, "last_page": 2, "total": 23 }
+  }
+}
 ```
 15 item per halaman.
 

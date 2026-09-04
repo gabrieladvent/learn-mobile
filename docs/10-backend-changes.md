@@ -88,14 +88,26 @@ error tanpa jalan keluar.
 
 ---
 
-## 4. Format error seragam
+## 4. Envelope response seragam
 
-Terapkan di exception handler untuk request `Accept: application/json`, sesuai
-[ADR-0015](adr/0015-format-error-api.md):
+Semua response `/api/v1` — sukses maupun gagal — memakai satu envelope, sesuai
+[ADR-0016](adr/0016-envelope-response-seragam.md):
 
 ```json
-{ "error": { "code": "validation_failed", "message": "...", "fields": { "nisn": ["..."] } } }
+{ "response_code": "success", "response_message": "Berhasil", "response_data": { } }
+{ "response_code": "validation_failed", "response_message": "...",
+  "response_data": { "fields": { "nisn": ["..."] } } }
 ```
+
+`response_data` dihilangkan kalau tidak ada data.
+
+⚠️ `response_code` berisi **kode mesin**, bukan HTTP status. HTTP status tetap
+dikirim benar di header — envelope melengkapi, bukan menggantikan.
+
+Implementasi: satu helper terpusat (`App\Http\Responses\ApiResponse`) plus satu
+enum kode. **Tidak ada controller yang menyusun array envelope manual.**
+Exception handler membungkus semua exception untuk request JSON, termasuk yang
+dilempar framework.
 
 Peta minimum: `ValidationException` → 422 `validation_failed`,
 `AuthenticationException` → 401 `unauthenticated`,
