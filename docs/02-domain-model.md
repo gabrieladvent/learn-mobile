@@ -79,9 +79,38 @@ File lampiran ditangani Spatie Media Library, collection `material_files`.
 | `deadline` (datetime) | wajib |
 | `max_score` | default 100 |
 | `allowed_file_types` (json), `max_file_size_mb` (default 10) | **validasi ini harus dicerminkan di klien** supaya siswa tidak menunggu upload gagal |
+| `accepts_late_submission` | sakelar per tugas: boleh dikumpulkan lewat deadline atau tidak |
 | `is_published`, `available_from`, `available_until` | visibility sama seperti material |
 
 Lampiran guru: collection `assignment_attachments`.
+
+### Deadline lewat: dua perilaku berbeda
+
+`accepts_late_submission` menentukan apa yang terjadi setelah `deadline`:
+
+| Nilai | Perilaku server |
+|-------|-----------------|
+| `true` | pengumpulan **diterima**, lalu `is_late` diisi `true` |
+| `false` | pengumpulan **ditolak** `422` |
+
+Default untuk tugas baru adalah `true`. Tugas yang sudah ada sebelum fitur ini
+di-backfill `false`, jadi jangan berasumsi semuanya seragam — **selalu baca
+nilainya dari API.**
+
+⚠️ Konsekuensi untuk UI: status `overdue` di kartu tugas **tidak berarti tugas
+tertutup**. Kalau `accepts_late_submission` bernilai `true`, siswa masih bisa
+mengumpulkan. Menyembunyikan tombol kirim hanya karena `is_overdue` akan
+menghalangi siswa mengumpulkan tugas yang sebenarnya masih dibuka.
+
+⚠️ `is_late` mengikuti `submitted_at`, dan keduanya ditimpa setiap kali siswa
+menyunting. Jadi pengumpulan tepat waktu yang disunting setelah deadline akan
+berubah menjadi terlambat. Ini konsisten — waktu yang tercatat memang waktu
+penyuntingan terakhir — tapi perlu dijelaskan ke siswa sebelum ia menekan
+"perbarui jawaban" setelah deadline.
+
+**Ujian tidak punya konsep ini.** `exam_submissions` tidak memiliki `is_late`;
+ujian memakai jendela `available_until` yang tegas — lewat itu, pengumpulan
+ditutup, bukan ditandai terlambat.
 
 ### AssignmentSubmission
 
@@ -92,7 +121,7 @@ Lampiran guru: collection `assignment_attachments`.
 | `link_url` (2048) | jawaban berupa tautan |
 | `submitted_at` | null = draft belum terkirim |
 | `score`, `feedback`, `graded_at` | terisi setelah guru menilai |
-| `is_late` | dihitung server saat submit |
+| `is_late` | dihitung server saat submit: `submitted_at > deadline` |
 
 Lampiran siswa: collection `submission_files`.
 

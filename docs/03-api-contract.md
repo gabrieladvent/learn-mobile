@@ -298,6 +298,7 @@ Membungkus `GetStudentAssignment`.
       "max_score": 100.0,
       "allowed_file_types": ["pdf", "docx", "jpg", "png"],
       "max_file_size_mb": 10,
+      "accepts_late_submission": true,
       "is_overdue": false, "status": "not_submitted",
       "attachments": [ { "id": "...", "file_name": "...", "download_path": "..." } ]
     },
@@ -321,6 +322,11 @@ Membungkus `GetStudentAssignment`.
   "files": [ { "id": "...", "file_name": "...", "download_path": "..." } ]
 }
 ```
+
+⚠️ `is_overdue: true` **tidak** berarti tugas tertutup. Selama
+`accepts_late_submission` bernilai `true`, pengumpulan tetap diterima dan
+ditandai `is_late`. Tombol kirim hanya boleh disembunyikan kalau
+`is_overdue && !accepts_late_submission`.
 
 `allowed_file_types` dan `max_file_size_mb` **wajib dipakai klien** untuk
 memvalidasi sebelum upload — biar siswa tidak membuang kuota mengunggah file
