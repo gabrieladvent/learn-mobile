@@ -8,24 +8,41 @@ Angka ini kasar; perlakukan sebagai urutan besaran, bukan janji.
 
 ---
 
-## Fase 0 — Fondasi API (backend) · ~1–1,5 minggu
+## Fase 0 — Fondasi API (backend) · ✅ SELESAI 4 September 2026
 
 **Blokir semua fase lain.** Tanpa ini, aplikasi tidak punya sumber data.
 
 Pekerjaan ada di `lms-app`, rinciannya di [10 — Perubahan Backend](10-backend-changes.md).
 
-- [ ] `routes/api.php` + Sanctum guard `student`
-- [ ] Endpoint auth (login/logout/me) dengan token
-- [ ] Kode error terstruktur (`password_change_required`, `account_inactive`, dst)
-- [ ] Bungkus Action yang sudah ada jadi endpoint JSON
-- [ ] Buang field `url` dari payload, tambahkan `material_id` di to-do
-- [ ] `idempotency_key` untuk endpoint submit
-- [ ] Pastikan `correct_answer` tersaring sebelum rilis hasil
-- [ ] Endpoint unduh file berautorisasi untuk klien token
-- [ ] Feature test untuk tiap endpoint
+- [x] `routes/api.php` + Sanctum guard `student-api`
+- [x] Endpoint auth (login/logout/me) dengan token
+- [x] Kode error terstruktur (`password_change_required`, `account_inactive`, dst)
+- [x] Bungkus Action yang sudah ada jadi endpoint JSON
+- [x] Buang field `url` dari payload, tambahkan `material_id` di to-do
+- [x] `idempotency_key` untuk endpoint submit
+- [x] Pastikan `correct_answer` tersaring sebelum rilis hasil
+- [x] Endpoint unduh file berautorisasi untuk klien token
+- [x] Feature test untuk tiap endpoint
 
-**Selesai kalau:** seluruh endpoint di [03](03-api-contract.md) bisa dipanggil
-dengan Bearer token dan lolos test.
+Dikerjakan dalam lima PR di `learning-management-system`:
+#34 auth · #35 dashboard & to-do · #36 course & materi · #37 tugas + terima
+keterlambatan · ujian (menyusul).
+
+**Hasil akhir:** 138 test, 495 assertion, Pint bersih.
+
+Tiga hal yang berbeda dari rencana awal, dan alasannya:
+
+- **Penutupan sesi ujian di server sudah ada sejak awal**
+  (`exam:auto-submit-expired`, terjadwal tiap dua menit, lengkap dengan 3 test).
+  Checklist ini keliru mencantumkannya sebagai pekerjaan baru.
+- **Submit ujian membalas `200`, bukan `409`**, saat sesi sudah tersubmit —
+  lihat [03](03-api-contract.md).
+- **Envelope response berubah** mengikuti konvensi organisasi
+  ([ADR-0016](adr/0016-envelope-response-seragam.md)), menggantikan ADR-0015.
+
+Satu perubahan produk juga ikut dikerjakan di luar rencana: tugas kini bisa
+menerima pengumpulan terlambat lewat sakelar `accepts_late_submission`
+per tugas — lihat [02](02-domain-model.md).
 
 ---
 

@@ -167,13 +167,18 @@ Berlaku untuk: submit tugas, submit ujian mode `submission`.
 - [ ] **Verifikasi ulang** bahwa `correct_answer` tidak ikut di payload soal
       sebelum `results_released_at` lewat. Ini kewajiban server; memfilter di
       klien tidak ada gunanya karena payload bisa dibaca lewat proxy.
-- [ ] **Penutupan sesi di sisi server** untuk sesi lewat waktu, lewat scheduled
-      job. Saat ini penutupan bergantung pada klien yang mengirim submit — kalau
-      aplikasi siswa mati, sesi menggantung terbuka. Ada tabel
-      `exam_start_reminders` dan indeks `open_session` yang bisa jadi titik mulai.
-- [ ] `POST .../submit` pada sesi yang sudah tersubmit → `409 conflict`, bukan
-      error validasi. Klien memakai ini untuk sinkronisasi ulang tanpa
-      menampilkan error merah.
+- [x] **Penutupan sesi di sisi server** — ternyata **sudah ada** sejak sebelum
+      pekerjaan mobile dimulai: `AutoSubmitExpiredExamSessionsCommand`
+      (`exam:auto-submit-expired`), terjadwal tiap dua menit di
+      `routes/console.php` dengan `withoutOverlapping()` + `onOneServer()`.
+      Sesi dikunci baris, kedaluwarsa dihitung ulang dari `started_at + duration`,
+      dan `submitted_at` dicatat pada **waktu kedaluwarsa sebenarnya** — bukan
+      waktu job berjalan — lalu `submission_reason` diisi `auto_timeout`.
+      Sudah punya 3 feature test. Tidak ada yang perlu dikerjakan.
+- [x] `POST .../submit` pada sesi yang sudah tersubmit → **`200`, bukan `409`**.
+      Action-nya memang sudah idempoten, dan membalas error untuk pengulangan
+      yang wajar justru memaksa klien memperlakukan error sebagai sukses.
+      Lihat catatan di [03](03-api-contract.md).
 
 ---
 
@@ -240,7 +245,6 @@ Lihat [ADR-0013](adr/0013-versioning-api-dan-force-update.md).
 4. Penyesuaian payload (`url` → `material_id`)
 5. Unduh file via token
 6. Idempotency submit
-7. Penutupan sesi ujian di server
 8. FCM + `device_tokens`
 9. Force update
 10. Test + perbaikan doc
