@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Tanggal:** 2026-09-04
-- **Terkait:** [ADR-0015](0015-format-error-api.md), [ADR-0013](0013-versioning-api-dan-force-update.md)
+- **Terkait:** [ADR-0016](0016-envelope-response-seragam.md), [ADR-0013](0013-versioning-api-dan-force-update.md)
 
 ## Konteks
 

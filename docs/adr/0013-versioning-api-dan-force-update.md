@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Tanggal:** 2026-09-04
-- **Terkait:** [ADR-0003](0003-api-json-v1-reuse-student-actions.md), [ADR-0015](0015-format-error-api.md)
+- **Terkait:** [ADR-0003](0003-api-json-v1-reuse-student-actions.md), [ADR-0016](0016-envelope-response-seragam.md)
 
 ## Konteks
 

@@ -1,6 +1,12 @@
 # ADR-0015 — Format error API dengan kode mesin
 
-- **Status:** Accepted
+> ⚠️ **Digantikan oleh [ADR-0016](0016-envelope-response-seragam.md).**
+> Bentuk `{ "error": { code, message, fields } }` tidak lagi dipakai; envelope
+> seragam `response_code`/`response_message`/`response_data` menggantikannya.
+> **Daftar kode mesin dan alasannya tetap berlaku** — hanya posisinya di payload
+> yang berubah. Dokumen ini dipertahankan untuk merekam alasan aslinya.
+
+- **Status:** **Superseded by [ADR-0016](0016-envelope-response-seragam.md)**
 - **Tanggal:** 2026-09-04
 - **Terkait:** [ADR-0003](0003-api-json-v1-reuse-student-actions.md), [docs/03](../03-api-contract.md)
 
