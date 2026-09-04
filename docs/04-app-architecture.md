@@ -91,7 +91,7 @@ assignment/
 
 | Kebutuhan | Paket | Alasan singkat |
 |-----------|-------|----------------|
-| State management | `flutter_riverpod` + `riverpod_generator` | [ADR-0005](adr/0005-state-management-riverpod.md) |
+| State management | `flutter_riverpod` **3.x** + `riverpod_generator` | [ADR-0005](adr/0005-state-management-riverpod.md) |
 | Navigasi | `go_router` | [ADR-0006](adr/0006-navigasi-go-router.md) |
 | HTTP | `dio` | interceptor & upload progress — [ADR-0007](adr/0007-http-client-dio.md) |
 | Model & union | `freezed` + `json_serializable` | immutability, `when` untuk state |
@@ -102,6 +102,28 @@ assignment/
 | File | `file_picker`, `open_filex`, `path_provider` | pilih & buka lampiran |
 | Crash & log | `sentry_flutter` | wajib untuk debug ujian di lapangan |
 | Test | `mocktail`, `patrol` (E2E) | [ADR-0014](adr/0014-strategi-testing.md) |
+
+⚠️ **Riverpod yang terpasang adalah 3.x, bukan 2.x.** Beberapa API berbeda dari
+mayoritas tutorial yang beredar:
+
+| Riverpod 2 (banyak tutorial) | Riverpod 3 (yang kita pakai) |
+|------------------------------|------------------------------|
+| `asyncValue.valueOrNull` | `asyncValue.value` |
+| `FooRef` (tiap provider punya tipe Ref sendiri) | `Ref` saja |
+| `ProviderObserver.didUpdateProvider(provider, prev, next, container)` | `didUpdateProvider(ProviderObserverContext, prev, next)` |
+
+⚠️ `riverpod_lint` + `custom_lint` **belum dipasang** — versinya belum mendukung
+Riverpod 3.4.3 dan membuat resolusi dependency gagal. Coba lagi nanti; sampai
+saat itu, konvensi di bawah ditegakkan lewat review, bukan lewat linter.
+
+**File hasil code generation (`*.g.dart`, `*.freezed.dart`) tidak di-commit**
+supaya diff PR hanya berisi kode yang ditulis manusia. Setelah clone, atau
+setiap kali mengubah model/provider:
+
+```bash
+dart run build_runner build          # sekali jalan
+dart run build_runner watch          # otomatis saat file berubah
+```
 
 `pubspec.yaml` saat ini masih kosong dari semua ini — menambahkannya adalah
 langkah pertama Fase 1.

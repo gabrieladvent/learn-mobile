@@ -46,3 +46,9 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Hasil code generation (freezed, json_serializable, riverpod_generator).
+# Sengaja tidak di-commit supaya diff PR hanya berisi kode yang ditulis manusia.
+# Buat ulang dengan: dart run build_runner build
+*.g.dart
+*.freezed.dart

@@ -6,7 +6,11 @@ plugins {
 
 android {
     namespace = "com.example.learn_mobile"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_secure_storage butuh SDK 37. Google merilis API 37 hanya sebagai
+    // "minor version" (android-37.0, 37.1, ...), tidak ada paket android-37 polos.
+    // Tanpa compileSdkMinor, AGP mencari android-37 dan build gagal.
+    compileSdk = 37
+    compileSdkMinor = 0
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

@@ -1,6 +1,6 @@
 # ADR-0006 — go_router untuk navigasi deklaratif
 
-- **Status:** Proposed
+- **Status:** Accepted (diketok 4 September 2026)
 - **Tanggal:** 2026-09-04
 - **Terkait:** [ADR-0005](0005-state-management-riverpod.md), [docs/05](../05-screens-and-flows.md)
 
@@ -21,7 +21,7 @@ Ditambah satu kebutuhan khusus: layar ujian harus berada **di luar** shell
 bottom-navigation, supaya tidak ada jalan navigasi yang menggoda saat siswa
 sedang mengerjakan.
 
-## Keputusan (usulan)
+## Keputusan
 
 Kami memakai **`go_router`** dengan rute deklaratif, `ShellRoute` untuk bagian
 ber-bottom-navigation, dan satu fungsi `redirect` terpusat untuk semua guard.
