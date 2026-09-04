@@ -25,8 +25,8 @@ Catatan keputusan arsitektur untuk `learn_mobile`. Alasan formatnya ada di
 | [0002](0002-flutter-native-bukan-webview.md) | Flutter native, bukan WebView atau PWA | Accepted |
 | [0003](0003-api-json-v1-reuse-student-actions.md) | API JSON `/api/v1` yang membungkus Student Actions | Accepted |
 | [0004](0004-auth-sanctum-token-guard-student.md) | Autentikasi Sanctum token dengan guard `student` | Accepted |
-| [0005](0005-state-management-riverpod.md) | Riverpod sebagai state management | **Proposed** |
-| [0006](0006-navigasi-go-router.md) | go_router untuk navigasi deklaratif | Proposed |
+| [0005](0005-state-management-riverpod.md) | Riverpod sebagai state management | Accepted |
+| [0006](0006-navigasi-go-router.md) | go_router untuk navigasi deklaratif | Accepted |
 | [0007](0007-http-client-dio.md) | Dio sebagai HTTP client | Accepted |
 | [0008](0008-offline-cache-dan-outbox.md) | Cache baca + outbox tulis, bukan offline-first penuh | Accepted |
 | [0009](0009-timer-ujian-otoritatif-server.md) | Timer ujian otoritatif di server | Accepted |
@@ -38,5 +38,4 @@ Catatan keputusan arsitektur untuk `learn_mobile`. Alasan formatnya ada di
 | [0015](0015-format-error-api.md) | Format error API dengan kode mesin | ~~Superseded by 0016~~ |
 | [0016](0016-envelope-response-seragam.md) | Envelope response seragam `response_code`/`response_message`/`response_data` | Accepted |
 
-⚠️ ADR-0005 dan 0006 berstatus **Proposed** — menunggu keputusan final tim.
-Sisanya sudah disepakati saat perencanaan 4 September 2026.
+Seluruh ADR berstatus `Accepted`, kecuali ADR-0015 yang digantikan ADR-0016.

@@ -1,30 +1,73 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:learn_mobile/main.dart';
+import 'package:learn_mobile/core/network/api_envelope.dart';
+import 'package:learn_mobile/core/error/app_failure.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('ApiEnvelope', () {
+    test('membaca envelope sukses', () {
+      final envelope = ApiEnvelope.fromJson({
+        'response_code': 'success',
+        'response_message': 'Berhasil',
+        'response_data': {'token': 'abc'},
+      });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(envelope.code, 'success');
+      expect(envelope.data?['token'], 'abc');
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('response_data boleh tidak ada', () {
+      final envelope = ApiEnvelope.fromJson({
+        'response_code': 'success',
+        'response_message': 'Berhasil',
+      });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(envelope.data, isNull);
+    });
+
+    test('membedakan password_change_required dari forbidden biasa', () {
+      // Keduanya HTTP 403 tapi perlakuannya berlawanan: yang satu mengarahkan
+      // ke layar ganti password, yang lain cuma pesan generik.
+      final mustChange = ApiEnvelope.fromJson({
+        'response_code': 'password_change_required',
+        'response_message': 'Ganti password default kamu dulu.',
+      }).toFailure();
+
+      final forbidden = ApiEnvelope.fromJson({
+        'response_code': 'forbidden',
+        'response_message': 'Kamu tidak punya akses.',
+      }).toFailure();
+
+      expect(mustChange, isA<PasswordChangeRequiredFailure>());
+      expect(forbidden, isA<ForbiddenFailure>());
+    });
+
+    test('memetakan detail validasi per field', () {
+      final failure = ApiEnvelope.fromJson({
+        'response_code': 'validation_failed',
+        'response_message': 'NISN atau password salah.',
+        'response_data': {
+          'fields': {
+            'nisn': ['NISN atau password salah.'],
+          },
+        },
+      }).toFailure();
+
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        (failure as ValidationFailure).firstFor('nisn'),
+        'NISN atau password salah.',
+      );
+    });
+
+    test('kode tak dikenal jatuh ke ServerFailure, bukan crash', () {
+      // Backend boleh menambah kode baru kapan saja tanpa merusak aplikasi lama.
+      final failure = ApiEnvelope.fromJson({
+        'response_code': 'kode_yang_belum_ada',
+        'response_message': 'Sesuatu terjadi.',
+      }).toFailure();
+
+      expect(failure, isA<ServerFailure>());
+      expect(failure.message, 'Sesuatu terjadi.');
+    });
   });
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Sejak Android 9 (API 28), HTTP polos diblokir secara default. Backend lokal
+  kita dilayani lewat HTTP, jadi perlu pengecualian.
+
+  Berkas ini berada di src/debug/, BUKAN src/main/ — artinya hanya ikut pada
+  build debug. Build release tetap menolak HTTP polos sepenuhnya, jadi tidak
+  ada risiko token siswa terkirim tanpa enkripsi di aplikasi yang dirilis.
+
+  Pengecualiannya dibatasi ke alamat loopback saja, bukan `cleartextTrafficPermitted`
+  global: kalau URL backend salah ketik ke host publik, koneksinya tetap ditolak.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Alamat khusus emulator Android untuk 127.0.0.1 milik Mac. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Untuk perangkat fisik lewat `adb reverse tcp:8000 tcp:8000`. -->
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
