@@ -95,8 +95,11 @@ sebagai konten tak tepercaya.
 - Lampiran guru (unduh).
 - Form jawaban: teks, link, dan pemilih file. Validasi klien mengikuti
   `allowed_file_types` + `max_file_size_mb`.
-- Kalau sudah dikumpulkan: tampilkan submission, penanda terlambat, nilai &
-  feedback bila `graded_at` terisi.
+- Kalau sudah dikumpulkan: tampilkan submission, penanda terlambat (`is_late`),
+  nilai & feedback bila `graded_at` terisi.
+- Deadline lewat tapi `accepts_late_submission` masih `true`: **jangan sembunyikan
+  form kirim.** Tampilkan peringatan bahwa pengumpulan akan ditandai terlambat,
+  lalu biarkan siswa mengirim. Sembunyikan form hanya kalau sakelarnya `false`.
 - Linimasa `activities` dari API.
 
 State pengiriman yang harus terlihat jelas: **draft lokal**, **mengantre kirim**,
