@@ -37,5 +37,6 @@ Catatan keputusan arsitektur untuk `learn_mobile`. Alasan formatnya ada di
 | [0014](0014-strategi-testing.md) | Strategi testing berbasis risiko | Accepted |
 | [0015](0015-format-error-api.md) | Format error API dengan kode mesin | ~~Superseded by 0016~~ |
 | [0016](0016-envelope-response-seragam.md) | Envelope response seragam `response_code`/`response_message`/`response_data` | Accepted |
+| [0017](0017-umpan-balik-toast-overlay.md) | Umpan balik sekilas lewat `Overlay`, bukan `SnackBar` | Accepted |
 
 Seluruh ADR berstatus `Accepted`, kecuali ADR-0015 yang digantikan ADR-0016.

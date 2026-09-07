@@ -1,0 +1,14 @@
+# Test bertanda `preview` menghasilkan tangkapan layar desain ke test/preview/.
+#
+# Dilewati secara bawaan karena hasilnya bergantung mesin: font, versi Skia, dan
+# pembulatan piksel berbeda antar komputer, jadi ia akan gagal di CI tanpa ada
+# yang benar-benar rusak. Ini alat untuk MELIHAT desain, bukan penjaga regresi.
+#
+# Menjalankan dan memperbarui gambarnya:
+#   flutter test --tags preview --update-goldens --run-skipped
+#
+# `--run-skipped` wajib: `skip` di bawah berlaku juga saat tag-nya diminta
+# lewat `--tags`, jadi tanpa itu perintahnya hanya melaporkan "all tests skipped".
+tags:
+  preview:
+    skip: "jalankan manual: flutter test --tags preview --update-goldens --run-skipped"

@@ -14,10 +14,10 @@ class AppAccent {
   final Color onContainer;
 
   static AppAccent lerp(AppAccent a, AppAccent b, double t) => AppAccent(
-        base: Color.lerp(a.base, b.base, t)!,
-        container: Color.lerp(a.container, b.container, t)!,
-        onContainer: Color.lerp(a.onContainer, b.onContainer, t)!,
-      );
+    base: Color.lerp(a.base, b.base, t)!,
+    container: Color.lerp(a.container, b.container, t)!,
+    onContainer: Color.lerp(a.onContainer, b.onContainer, t)!,
+  );
 }
 
 @immutable

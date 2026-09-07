@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/theme/app_motion.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/ui/app_background.dart';
+import '../core/update/force_update_controller.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/domain/auth_session.dart';
 import '../features/auth/presentation/change_password_screen.dart';
@@ -12,6 +13,7 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/onboarding/application/intro_controller.dart';
 import '../features/onboarding/presentation/intro_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
+import '../features/app_update/presentation/force_update_screen.dart';
 
 part 'router.g.dart';
 
@@ -25,6 +27,7 @@ GoRouter router(Ref ref) {
       final auth = ref.read(authControllerProvider);
 
       return resolveRedirect(
+        rejectedByServer: ref.read(forceUpdateControllerProvider) != null,
         stillLoading:
             (intro.isLoading && !intro.hasValue) ||
             (auth.isLoading && !auth.hasValue),
@@ -42,6 +45,10 @@ GoRouter router(Ref ref) {
         pageBuilder: _page(const ChangePasswordScreen()),
       ),
       GoRoute(path: '/home', pageBuilder: _page(const HomeScreen())),
+      GoRoute(
+        path: '/force-update',
+        pageBuilder: _page(const ForceUpdateScreen()),
+      ),
     ],
   );
 }
@@ -50,11 +57,16 @@ const _entryPoints = {'/', '/login', '/intro', '/change-password'};
 
 @visibleForTesting
 String? resolveRedirect({
+  required bool rejectedByServer,
   required bool stillLoading,
   required bool? introSeen,
   required AuthSession? session,
   required String here,
 }) {
+  if (rejectedByServer) {
+    return here == '/force-update' ? null : '/force-update';
+  }
+
   if (stillLoading) return here == '/' ? null : '/';
 
   if (introSeen == false) {
@@ -76,31 +88,33 @@ String? resolveRedirect({
 
 GoRouterPageBuilder _page(Widget child) {
   return (context, state) => CustomTransitionPage<void>(
-        key: state.pageKey,
-        child: child,
-        transitionDuration: AppMotion.slow,
-        reverseTransitionDuration: AppMotion.normal,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: const Interval(0.35, 1, curve: AppMotion.enter),
-            ),
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.94, end: 1).animate(
-                CurvedAnimation(parent: animation, curve: AppMotion.enter),
-              ),
-              child: child,
-            ),
-          );
-        },
+    key: state.pageKey,
+    child: child,
+    transitionDuration: AppMotion.slow,
+    reverseTransitionDuration: AppMotion.normal,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.35, 1, curve: AppMotion.enter),
+        ),
+        child: ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.94,
+            end: 1,
+          ).animate(CurvedAnimation(parent: animation, curve: AppMotion.enter)),
+          child: child,
+        ),
       );
+    },
+  );
 }
 
 class _RouterRefresh extends ChangeNotifier {
   _RouterRefresh(Ref ref) {
     ref.listen(authControllerProvider, (_, _) => notifyListeners());
     ref.listen(introControllerProvider, (_, _) => notifyListeners());
+    ref.listen(forceUpdateControllerProvider, (_, _) => notifyListeners());
   }
 }
 

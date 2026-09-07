@@ -52,3 +52,11 @@ app.*.map.json
 # Buat ulang dengan: dart run build_runner build
 *.g.dart
 *.freezed.dart
+
+# Tangkapan layar desain dari test bertanda `preview` — hasil kerja lokal,
+# bukan berkas sumber.
+test/preview/
+
+# Gambar pembanding yang ditulis otomatis saat golden test gagal. Selalu bisa
+# dibuat ulang, dan tidak ada gunanya di riwayat.
+test/failures/

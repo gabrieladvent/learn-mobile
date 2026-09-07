@@ -202,11 +202,24 @@ Empat notifikasi sudah ada (`StudentAssignmentPublished`, `StudentAssignmentGrad
 
 Lihat [ADR-0013](adr/0013-versioning-api-dan-force-update.md).
 
-- [ ] Baca header `X-Client-Version` dan `X-Client-Platform`.
-- [ ] Middleware membandingkan dengan versi minimum di config; kalau di bawah →
+- [x] Baca header `X-Client-Version` dan `X-Client-Platform`.
+- [x] Middleware membandingkan dengan versi minimum di config; kalau di bawah →
       `426` dengan `code: client_too_old`.
-- [ ] Endpoint `GET /app-config` berisi versi minimum & terbaru, plus flag
-      pemeliharaan.
+- [x] Endpoint `GET /app-config` berisi versi minimum & terbaru.
+- [ ] Flag pemeliharaan — ditunda sampai klien punya layar untuk menampilkannya.
+
+Dikerjakan di branch `feat/api-v1-app-config` (belum di-merge): middleware
+`EnsureClientSupported`, `GET /api/v1/app-config`, config `mobile_app.php`, dan
+9 feature test.
+
+Dua keputusan yang perlu diketahui saat review:
+
+- **Gerbang versi gagal ke arah membolehkan.** Header tidak dikirim, versi tidak
+  terbaca, atau `min_version` kosong → permintaan diteruskan. Ini mekanisme
+  keselamatan untuk aplikasi resmi, bukan kontrol keamanan; klien yang sengaja
+  menghilangkan header memang bisa melewatinya.
+- **`/app-config` sengaja di luar gerbang itu**, supaya aplikasi yang sudah
+  ditolak tetap bisa mengambil tautan tokonya.
 
 ---
 

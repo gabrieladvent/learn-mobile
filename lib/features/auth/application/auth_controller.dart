@@ -22,11 +22,9 @@ class AuthController extends _$AuthController {
 
   Future<void> login({required String nisn, required String password}) async {
     state = await AsyncValue.guard(() async {
-      return ref.read(authRepositoryProvider).login(
-            nisn: nisn,
-            password: password,
-            deviceName: 'mobile',
-          );
+      return ref
+          .read(authRepositoryProvider)
+          .login(nisn: nisn, password: password, deviceName: 'mobile');
     });
   }
 
@@ -39,7 +37,9 @@ class AuthController extends _$AuthController {
     required String currentPassword,
     required String newPassword,
   }) async {
-    await ref.read(authRepositoryProvider).changePassword(
+    await ref
+        .read(authRepositoryProvider)
+        .changePassword(
           currentPassword: currentPassword,
           newPassword: newPassword,
         );

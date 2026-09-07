@@ -22,7 +22,17 @@ void main() {
       ProviderScope(
         // Penyimpanan asli menyentuh platform channel yang tidak ada di test.
         overrides: [appPreferencesProvider.overrideWithValue(prefs)],
-        child: MaterialApp(theme: AppTheme.light, home: const IntroScreen()),
+        child: MaterialApp(
+          theme: AppTheme.light,
+          // Latar aurora dan orb berdenyut tanpa henti. `pumpAndSettle`
+          // menunggu SEMUA animasi selesai, jadi tanpa penanda ini test-nya
+          // menggantung sampai timeout. Ini juga jalur yang dipakai pengguna
+          // yang menyalakan "kurangi gerak" di setelan sistem.
+          home: MediaQuery(
+            data: const MediaQueryData(disableAnimations: true),
+            child: const IntroScreen(),
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();

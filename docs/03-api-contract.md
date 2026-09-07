@@ -113,6 +113,50 @@ di layar error tanpa jalan keluar. Ini alasan `code` wajib ada.
 
 ---
 
+## Konfigurasi aplikasi
+
+### `GET /app-config`
+
+Sudah diimplementasikan di `lms-app` (branch `feat/api-v1-app-config`, belum
+di-merge). Klien tetap memperlakukan kegagalan endpoint ini sebagai "tidak ada
+info" dan berjalan normal — supaya urutan rilis mobile dan backend tidak saling
+menyandera.
+
+Satu-satunya endpoint yang **tanpa autentikasi**: dipanggil saat cold start,
+sebelum siswa login. Isinya tidak bergantung pada siapa yang memanggil.
+
+Response:
+```json
+{
+  "response_code": "success",
+  "response_message": "Berhasil",
+  "response_data": {
+    "min_version": "1.4.0",
+    "latest_version": "1.6.1",
+    "store_url": "https://play.google.com/store/apps/details?id=..."
+  }
+}
+```
+
+| Field | Arti bagi klien |
+|-------|-----------------|
+| `min_version` | Di bawah ini → **layar force update**, sama seperti balasan `426` |
+| `latest_version` | Di bawah ini → banner pembaruan opsional yang bisa ditutup |
+| `store_url` | Tautan toko sesuai `X-Client-Platform` yang dikirim klien |
+
+Server memilih `store_url` berdasarkan header `X-Client-Platform`, jadi klien
+tidak perlu tahu ID aplikasi di masing-masing toko.
+
+Semua field **boleh tidak ada**. Field yang hilang berarti "tidak ada batasan",
+bukan error — klien tidak boleh mengunci siswa karena payload tidak lengkap.
+
+Flag pemeliharaan yang disebut [ADR-0013](adr/0013-versioning-api-dan-force-update.md)
+**belum** ada di kedua sisi. Pemeliharaan bukan keadaan yang selesai dengan
+memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri — dikerjakan saat
+layarnya dirancang, bukan sebagai field yang tidak dibaca siapa pun.
+
+---
+
 ## Auth
 
 ### `POST /auth/login`
