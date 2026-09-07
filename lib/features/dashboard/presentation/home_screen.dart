@@ -77,7 +77,6 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final student = this.student;
-    // Warna dipilih dari nama, bukan acak — jadi tetap sama tiap kali dibuka.
     final accent = context.accents[(student?.fullName.length ?? 0)];
 
     return Card(
@@ -88,8 +87,6 @@ class _ProfileCard extends StatelessWidget {
             CircleAvatar(
               radius: 26,
               backgroundColor: accent.container,
-              // `photoUrl` bisa kosong — siswa yang belum pernah mengunggah
-              // foto. Inisial nama jadi cadangannya.
               backgroundImage: student?.photoUrl != null
                   ? NetworkImage(student!.photoUrl!)
                   : null,
@@ -139,7 +136,6 @@ class _ProfileCard extends StatelessWidget {
     );
   }
 
-  /// Maksimal dua huruf: "Ahmad Fauzi" → "AF". Nama satu kata → satu huruf.
   static String _initials(String? name) {
     final parts = (name ?? '').trim().split(RegExp(r'\s+'))
       ..removeWhere((part) => part.isEmpty);
