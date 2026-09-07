@@ -2,78 +2,105 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/theme/app_motion.dart';
+import '../core/theme/app_spacing.dart';
+import '../core/ui/app_background.dart';
 import '../features/auth/application/auth_controller.dart';
+import '../features/auth/domain/auth_session.dart';
 import '../features/auth/presentation/change_password_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/onboarding/application/intro_controller.dart';
+import '../features/onboarding/presentation/intro_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 
 part 'router.g.dart';
 
-/// Seluruh aturan "siapa boleh membuka layar apa" ada di SATU tempat.
-///
-/// Kenapa terpusat: kalau tiap layar mengecek sendiri di `initState`, cepat
-/// atau lambat ada satu layar yang lupa — dan siswa yang belum ganti password
-/// akan menabrak error 403 di layar itu tanpa tahu jalan keluarnya.
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
   return GoRouter(
     initialLocation: '/',
-    // `refreshListenable` membuat router mengevaluasi ulang `redirect` setiap
-    // kali state auth berubah — jadi logout langsung melempar ke /login tanpa
-    // perlu navigasi manual dari mana pun.
-    refreshListenable: _AuthListenable(ref),
+    refreshListenable: _RouterRefresh(ref),
     redirect: (context, state) {
+      final intro = ref.read(introControllerProvider);
       final auth = ref.read(authControllerProvider);
 
-      // Masih memeriksa token tersimpan saat aplikasi baru dibuka → tahan di
-      // splash. `!auth.hasValue` membatasi ini pada pemuatan PERTAMA saja:
-      // begitu state pernah terisi, loading berikutnya tidak lagi menendang
-      // siswa ke splash.
-      if (auth.isLoading && !auth.hasValue) {
-        return state.matchedLocation == '/' ? null : '/';
-      }
-
-      final session = auth.value;
-      final goingToLogin = state.matchedLocation == '/login';
-
-      // URUTAN GUARD DI BAWAH INI PENTING. Membaliknya membuat siswa yang
-      // belum ganti password bisa lolos ke layar konten.
-
-      // 1. Belum login → hanya boleh ke /login.
-      if (session == null) {
-        return goingToLogin ? null : '/login';
-      }
-
-      // 2. Sudah login tapi password masih default → kunci di layar ganti
-      //    password. Ini mencerminkan middleware backend; tanpa ini, aplikasi
-      //    akan menabrak `password_change_required` di setiap layar konten.
-      if (session.mustChangePassword) {
-        return state.matchedLocation == '/change-password'
-            ? null
-            : '/change-password';
-      }
-
-      // 3. Sudah login penuh, tapi masih di splash/login → lempar ke beranda.
-      if (goingToLogin || state.matchedLocation == '/') {
-        return '/home';
-      }
-
-      return null;
+      return resolveRedirect(
+        stillLoading:
+            (intro.isLoading && !intro.hasValue) ||
+            (auth.isLoading && !auth.hasValue),
+        introSeen: intro.value,
+        session: auth.value,
+        here: state.matchedLocation,
+      );
     },
     routes: [
-      GoRoute(path: '/', builder: (_, _) => const _SplashScreen()),
-      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
-      GoRoute(path: '/change-password', builder: (_, _) => const ChangePasswordScreen()),
-      GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+      GoRoute(path: '/', pageBuilder: _page(const _SplashScreen())),
+      GoRoute(path: '/intro', pageBuilder: _page(const IntroScreen())),
+      GoRoute(path: '/login', pageBuilder: _page(const LoginScreen())),
+      GoRoute(
+        path: '/change-password',
+        pageBuilder: _page(const ChangePasswordScreen()),
+      ),
+      GoRoute(path: '/home', pageBuilder: _page(const HomeScreen())),
     ],
   );
 }
 
-/// Jembatan dari Riverpod ke `refreshListenable` milik go_router, yang
-/// mengharapkan sebuah [Listenable].
-class _AuthListenable extends ChangeNotifier {
-  _AuthListenable(Ref ref) {
+const _entryPoints = {'/', '/login', '/intro', '/change-password'};
+
+@visibleForTesting
+String? resolveRedirect({
+  required bool stillLoading,
+  required bool? introSeen,
+  required AuthSession? session,
+  required String here,
+}) {
+  if (stillLoading) return here == '/' ? null : '/';
+
+  if (introSeen == false) {
+    return here == '/intro' ? null : '/intro';
+  }
+
+  if (session == null) {
+    return here == '/login' ? null : '/login';
+  }
+
+  if (session.mustChangePassword) {
+    return here == '/change-password' ? null : '/change-password';
+  }
+
+  if (_entryPoints.contains(here)) return '/home';
+
+  return null;
+}
+
+GoRouterPageBuilder _page(Widget child) {
+  return (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        child: child,
+        transitionDuration: AppMotion.slow,
+        reverseTransitionDuration: AppMotion.normal,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.35, 1, curve: AppMotion.enter),
+            ),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.94, end: 1).animate(
+                CurvedAnimation(parent: animation, curve: AppMotion.enter),
+              ),
+              child: child,
+            ),
+          );
+        },
+      );
+}
+
+class _RouterRefresh extends ChangeNotifier {
+  _RouterRefresh(Ref ref) {
     ref.listen(authControllerProvider, (_, _) => notifyListeners());
+    ref.listen(introControllerProvider, (_, _) => notifyListeners());
   }
 }
 
@@ -82,6 +109,44 @@ class _SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: AppBackground(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: AppMotion.slow,
+                curve: AppMotion.enter,
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: Transform.scale(
+                    scale: 0.9 + (0.1 * value),
+                    child: child,
+                  ),
+                ),
+                child: Icon(
+                  Icons.school_outlined,
+                  size: 64,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
