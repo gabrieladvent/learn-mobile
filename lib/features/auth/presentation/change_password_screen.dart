@@ -5,9 +5,9 @@ import '../../../core/error/app_failure.dart';
 import '../../../core/theme/app_accents.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/ui/app_submit_button.dart';
-import '../../../core/ui/failure_banner.dart';
-import '../../../core/ui/app_snack_bar.dart';
+import '../../../core/ui/app_toast.dart';
 import '../../../core/ui/form_layout.dart';
+import '../../../core/ui/glass_surface.dart';
 import '../../../core/ui/password_field.dart';
 import '../application/auth_controller.dart';
 
@@ -29,7 +29,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   bool _submitting = false;
 
   AppFailure? _failure;
-  
+
   String? _confirmError;
 
   @override
@@ -52,7 +52,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       return;
     }
 
-    final messenger = ScaffoldMessenger.of(context);
+    final toast = AppToast.of(context);
 
     setState(() {
       _submitting = true;
@@ -61,15 +61,20 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     });
 
     try {
-      await ref.read(authControllerProvider.notifier).changePassword(
+      await ref
+          .read(authControllerProvider.notifier)
+          .changePassword(
             currentPassword: _current.text,
             newPassword: _password.text,
           );
 
-      messenger.showSuccess('Password berhasil diganti.');
+      toast.showSuccess('Password berhasil diganti.');
     } on AppFailure catch (failure) {
-      if (mounted) setState(() => _failure = failure);
+      if (!mounted) return;
 
+      setState(() => _failure = failure);
+
+      if (failure is! ValidationFailure) toast.showFailure(failure.message);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -100,20 +105,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       ),
       body: FormLayout(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: accent.container,
-              borderRadius: BorderRadius.circular(AppSpacing.radius),
-            ),
+          SoftCard(
+            tint: accent.container,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.lock_outline,
-                  size: 20,
-                  color: accent.onContainer,
-                ),
+                Icon(Icons.lock_outline, size: 20, color: accent.onContainer),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -158,7 +155,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             loading: _submitting,
             onPressed: _submit,
           ),
-          FailureBanner(failure: _failure),
         ],
       ),
     );

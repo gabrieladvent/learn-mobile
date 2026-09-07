@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_accents.dart';
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_semantic.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/ui/app_background.dart';
+import '../../../core/ui/app_orb.dart';
+import '../../../core/ui/app_submit_button.dart';
+import '../../../core/ui/glass_surface.dart';
 import '../application/intro_controller.dart';
 
 class IntroScreen extends ConsumerStatefulWidget {
@@ -16,25 +19,27 @@ class IntroScreen extends ConsumerStatefulWidget {
 
 class _IntroScreenState extends ConsumerState<IntroScreen> {
   final _pages = const [
-    _IntroPage(
-      accentIndex: 0,
-      icon: Icons.menu_book_outlined,
+    _IntroContent(
+      colors: AppGradients.brand,
+      icon: Icons.auto_stories_rounded,
       title: 'Materi di satu tempat',
       body:
           'Semua mata pelajaran dan materi dari gurumu tersusun rapi, '
           'siap dibuka kapan saja.',
     ),
-    _IntroPage(
-      accentIndex: 1,
-      icon: Icons.assignment_turned_in_outlined,
+
+    _IntroContent(
+      colors: AppGradients.calm,
+      icon: Icons.task_alt_rounded,
       title: 'Tugas dan tenggatnya',
       body:
           'Lihat apa yang harus dikerjakan dan kapan batas waktunya, '
           'lalu kumpulkan langsung dari HP.',
     ),
-    _IntroPage(
-      accentIndex: 3,
-      icon: Icons.timer_outlined,
+    
+    _IntroContent(
+      colors: AppGradients.warm,
+      icon: Icons.timer_rounded,
       title: 'Ujian dengan waktu terjaga',
       body:
           'Waktu ujian dihitung di server, jadi tetap aman walau '
@@ -43,9 +48,21 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
   ];
 
   final _controller = PageController();
-  int _index = 0;
+
+  double _offset = 0;
+
+  int get _index => _offset.round();
 
   bool get _isLast => _index == _pages.length - 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      final page = _controller.page;
+      if (page != null && page != _offset) setState(() => _offset = page);
+    });
+  }
 
   @override
   void dispose() {
@@ -67,8 +84,20 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final last = _pages.length - 1;
+    final low = _pages[_offset.floor().clamp(0, last)].colors;
+    final high = _pages[_offset.ceil().clamp(0, last)].colors;
+    final t = _offset - _offset.floorToDouble();
+
+    final gradient = [
+      Color.lerp(low.first, high.first, t)!,
+      Color.lerp(low.last, high.last, t)!,
+    ];
+    final tint = gradient.first;
+
     return Scaffold(
       body: AppBackground(
+        tint: tint,
         child: SafeArea(
           child: Column(
             children: [
@@ -78,27 +107,34 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                   padding: const EdgeInsets.only(right: AppSpacing.sm),
                   child: TextButton(
                     onPressed: _finish,
-                    child: const Text('Lewati'),
+                    child: Text(
+                      'Lewati',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
               Expanded(
-                child: PageView(
+                child: PageView.builder(
                   controller: _controller,
-                  onPageChanged: (index) => setState(() => _index = index),
-                  children: _pages,
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) => _IntroPage(
+                    content: _pages[index],
+                    distance: index - _offset,
+                  ),
                 ),
               ),
-              _Dots(
-                count: _pages.length,
-                active: _index,
-                color: context.accents[_pages[_index].accentIndex].base,
-              ),
+              PageDots(count: _pages.length, active: _index, color: tint),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
-                child: FilledButton(
+                child: AppSubmitButton(
+                  label: _isLast ? 'Mulai' : 'Lanjut',
+                  loading: false,
                   onPressed: _next,
-                  child: Text(_isLast ? 'Mulai' : 'Lanjut'),
+                  colors: gradient,
                 ),
               ),
             ],
@@ -109,88 +145,80 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
   }
 }
 
-class _IntroPage extends StatelessWidget {
-  const _IntroPage({
-    required this.accentIndex,
+class _IntroContent {
+  const _IntroContent({
+    required this.colors,
     required this.icon,
     required this.title,
     required this.body,
   });
 
-  final int accentIndex;
-
+  final List<Color> colors;
   final IconData icon;
   final String title;
   final String body;
+}
+
+class _IntroPage extends StatelessWidget {
+  const _IntroPage({required this.content, required this.distance});
+
+  final _IntroContent content;
+  final double distance;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accent = context.accents[accentIndex];
+    final fade = (1 - distance.abs()).clamp(0.0, 1.0);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            decoration: BoxDecoration(
-              color: accent.container,
-              shape: BoxShape.circle,
+          Transform.translate(
+            offset: Offset(distance * -60, 0),
+            child: Opacity(
+              opacity: fade,
+              child: AppOrb(
+                icon: content.icon,
+                colors: content.colors,
+                size: 132,
+              ),
             ),
-            child: Icon(icon, size: 56, color: accent.onContainer),
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            body,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          Transform.translate(
+            offset: Offset(distance * -24, 0),
+            child: Opacity(
+              opacity: fade,
+              child: GlassPanel(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.xl,
+                ),
+                child: Column(
+                  children: [
+                    GradientTitle(
+                      content.title,
+                      colors: content.colors,
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      content.body,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Dots extends StatelessWidget {
-  const _Dots({required this.count, required this.active, required this.color});
-
-  final int count;
-  final int active;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (index) {
-        final isActive = index == active;
-
-        return AnimatedContainer(
-          duration: AppMotion.normal,
-          curve: AppMotion.enter,
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-          height: 8,
-          width: isActive ? 24 : 8,
-          decoration: BoxDecoration(
-            color: isActive ? color : colors.outlineVariant,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
-      }),
     );
   }
 }

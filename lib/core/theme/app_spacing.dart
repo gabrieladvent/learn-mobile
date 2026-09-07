@@ -8,7 +8,15 @@ abstract final class AppSpacing {
 
   static const double maxContentWidth = 420;
 
-  static const double radius = 12;
+  static const double maxToastWidth = 560;
 
-  static const double radiusField = 16;
+  static const double radiusSm = 14;
+
+  static const double radius = 20;
+
+  static const double radiusLg = 28;
+
+  static const double radiusField = 18;
+
+  static const double radiusPill = 999;
 }

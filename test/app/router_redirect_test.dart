@@ -15,12 +15,14 @@ AuthSession _session({bool mustChangePassword = false}) => AuthSession(
     );
 
 String? redirect({
+  bool rejectedByServer = false,
   bool stillLoading = false,
   bool? introSeen = true,
   AuthSession? session,
   required String here,
 }) =>
     resolveRedirect(
+      rejectedByServer: rejectedByServer,
       stillLoading: stillLoading,
       introSeen: introSeen,
       session: session,
@@ -29,6 +31,41 @@ String? redirect({
 
 void main() {
   group('resolveRedirect', () {
+    test('versi yang ditolak server mengunci di layar force update', () {
+      // ADR-0013: 426 ditangani global. Kalau guard ini longgar, siswa dengan
+      // versi lama masih bisa masuk ke layar yang seluruh datanya ditolak
+      // server — termasuk layar ujian, tempat kegagalannya merusak nilai.
+      expect(redirect(rejectedByServer: true, here: '/'), '/force-update');
+      expect(redirect(rejectedByServer: true, here: '/login'), '/force-update');
+      expect(
+        redirect(rejectedByServer: true, session: _session(), here: '/home'),
+        '/force-update',
+      );
+      expect(
+        redirect(rejectedByServer: true, introSeen: false, here: '/intro'),
+        '/force-update',
+        reason: 'Force update menang di atas intro.',
+      );
+      expect(
+        redirect(rejectedByServer: true, stillLoading: true, here: '/login'),
+        '/force-update',
+        reason: 'Tidak perlu menunggu penyimpanan dibaca untuk mengunci.',
+      );
+      expect(redirect(rejectedByServer: true, here: '/force-update'), isNull);
+    });
+
+    test('tanpa penolakan server, layar force update tidak pernah muncul', () {
+      expect(redirect(session: _session(), here: '/home'), isNull);
+      expect(
+        redirect(session: _session(), here: '/force-update'),
+        isNull,
+        reason:
+            'Rute ini tidak terdaftar sebagai pintu masuk, jadi tidak ada '
+            'lemparan otomatis ke beranda — tapi juga tidak ada yang '
+            'mengantar ke sini selain guard di atas.',
+      );
+    });
+
     test('menahan di splash selama penyimpanan masih dibaca', () {
       expect(redirect(stillLoading: true, here: '/login'), '/');
       expect(redirect(stillLoading: true, here: '/'), isNull);

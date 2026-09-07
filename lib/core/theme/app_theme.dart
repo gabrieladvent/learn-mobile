@@ -4,9 +4,8 @@ import 'app_accents.dart';
 import 'app_spacing.dart';
 
 abstract final class AppTheme {
-  static const Color _seed = Color(0xFF2563EB);
+  static const Color _seed = Color(0xFF6366F1);
   static final ThemeData light = _build(Brightness.light);
-
   static final ThemeData dark = _build(Brightness.dark);
 
   static OutlineInputBorder _fieldBorder(Color color, {double width = 1.5}) {
@@ -20,11 +19,7 @@ abstract final class AppTheme {
     final colors = ColorScheme.fromSeed(
       seedColor: _seed,
       brightness: brightness,
-      dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
-    );
-
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.radius),
+      dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
     );
 
     return ThemeData(
@@ -52,15 +47,21 @@ abstract final class AppTheme {
       ),
 
       inputDecorationTheme: InputDecorationTheme(
-        filled: false,
+        filled: true,
+        fillColor: colors.surface.withValues(alpha: 0.78),
+        
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md + 2,
-          vertical: AppSpacing.md + 2,
+          vertical: AppSpacing.md - 4,
         ),
+
         hintStyle: TextStyle(color: colors.onSurfaceVariant),
-        border: _fieldBorder(colors.outlineVariant),
-        enabledBorder: _fieldBorder(colors.outlineVariant),
-        focusedBorder: _fieldBorder(colors.primary, width: 2),
+        border: _fieldBorder(colors.outlineVariant.withValues(alpha: 0.7)),
+        enabledBorder: _fieldBorder(
+          colors.outlineVariant.withValues(alpha: 0.7),
+        ),
+
+        focusedBorder: _fieldBorder(colors.primary, width: 1.8),
         errorBorder: _fieldBorder(colors.error, width: 1.5),
         focusedErrorBorder: _fieldBorder(colors.error, width: 2),
         disabledBorder: _fieldBorder(
@@ -70,8 +71,9 @@ abstract final class AppTheme {
 
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
-          shape: shape,
+          minimumSize: const Size.fromHeight(48),
+          shape: const StadiumBorder(),
+          elevation: 0,
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
@@ -83,16 +85,13 @@ abstract final class AppTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         color: colors.surfaceContainerLow,
-        shape: shape,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        ),
         margin: EdgeInsets.zero,
       ),
 
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        shape: shape,
-        insetPadding: const EdgeInsets.all(AppSpacing.md),
-        elevation: 4,
-      ),
+      splashFactory: InkSparkle.splashFactory,
 
       dividerTheme: DividerThemeData(
         space: AppSpacing.lg,

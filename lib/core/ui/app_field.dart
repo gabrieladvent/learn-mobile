@@ -45,7 +45,9 @@ class AppField extends StatelessWidget {
           label,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
-            color: hasError ? theme.colorScheme.error : theme.colorScheme.onSurface,
+            color: hasError
+                ? theme.colorScheme.error
+                : theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppSpacing.sm),

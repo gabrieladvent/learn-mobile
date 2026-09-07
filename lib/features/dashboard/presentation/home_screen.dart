@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_accents.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/ui/app_background.dart';
+import '../../../core/ui/glass_surface.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/student.dart';
+import '../../app_update/presentation/optional_update_banner.dart';
 
 /// Beranda — masih kerangka.
 ///
@@ -19,7 +22,9 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text('Beranda'),
         actions: [
           IconButton(
@@ -29,14 +34,21 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          _ProfileCard(student: student),
-          const SizedBox(height: AppSpacing.md),
-          Card(
-            child: Padding(
+      body: AppBackground(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            kToolbarHeight + AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          children: [
+            const OptionalUpdateBanner(),
+            _ProfileCard(student: student),
+            const SizedBox(height: AppSpacing.md),
+            SoftCard(
               padding: const EdgeInsets.all(AppSpacing.lg),
+              radius: AppSpacing.radiusLg,
               child: Column(
                 children: [
                   Icon(
@@ -61,8 +73,8 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -79,59 +91,56 @@ class _ProfileCard extends StatelessWidget {
     final student = this.student;
     final accent = context.accents[(student?.fullName.length ?? 0)];
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: accent.container,
-              backgroundImage: student?.photoUrl != null
-                  ? NetworkImage(student!.photoUrl!)
-                  : null,
-              child: student?.photoUrl == null
-                  ? Text(
-                      _initials(student?.fullName),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: accent.onContainer,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+    return SoftCard(
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: accent.container,
+            backgroundImage: student?.photoUrl != null
+                ? NetworkImage(student!.photoUrl!)
+                : null,
+            child: student?.photoUrl == null
+                ? Text(
+                    _initials(student?.fullName),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: accent.onContainer,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Halo,',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  student?.fullName ?? '-',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (student?.className != null)
                   Text(
-                    'Halo,',
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    student!.className!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  Text(
-                    student?.fullName ?? '-',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (student?.className != null)
-                    Text(
-                      student!.className!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

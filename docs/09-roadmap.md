@@ -48,18 +48,45 @@ per tugas — lihat [02](02-domain-model.md).
 
 ## Fase 1 — Kerangka aplikasi & Auth · ~1,5 minggu
 
-- [ ] Tambah dependency ke `pubspec.yaml` (masih kosong hari ini)
-- [ ] Flavor dev/staging/prod + `--dart-define`
-- [ ] Dio + interceptor auth/error/logging, mapper `AppFailure`
-- [ ] Secure storage untuk token
-- [ ] go_router + guard (belum login / harus ganti password / force update)
-- [ ] Tema, komponen dasar, skeleton loader
-- [ ] Layar: splash, login, ganti password paksa
+- [x] Tambah dependency ke `pubspec.yaml` (masih kosong hari ini)
+- [x] Flavor dev/staging/prod + `--dart-define`
+- [x] Dio + interceptor auth/error/logging, mapper `AppFailure`
+- [x] Secure storage untuk token
+- [x] go_router + guard (belum login / harus ganti password / force update)
+- [x] Tema, komponen dasar, ~~skeleton loader~~ (menyusul di Fase 2, saat ada
+      daftar yang perlu ditunggu)
+- [x] Layar: splash, login, ganti password paksa
 - [ ] Sentry + penyaring data sensitif
-- [ ] CI: `analyze` + `test` (folder `.github/` sudah ada, isinya perlu dicek)
+- [ ] CI: `analyze` + `test` (`.github/` hanya berisi berkas alat modernisasi
+      Java, tidak ada workflow)
 
 **Selesai kalau:** siswa bisa login dengan NISN, dipaksa ganti password, dan
 sampai di beranda kosong. Token bertahan setelah app ditutup.
+
+### Force update ([ADR-0013](adr/0013-versioning-api-dan-force-update.md))
+
+Dikerjakan lebih awal dari rencana — ADR-0013 menaruhnya di Fase 5, tapi
+setengah mekanismenya (header versi klien, pemetaan kode `client_too_old`)
+sudah ikut terbawa saat lapisan jaringan dibuat, dan setengah mekanisme adalah
+keadaan yang menyesatkan: `426` diterjemahkan tapi tidak ada yang menindaknya.
+
+- [x] Versi asli aplikasi di header `X-Client-Version` (sebelumnya nilai mati
+      `1.0.0+1`, yang membuat force update tidak akan pernah terpicu)
+- [x] `426` mengunci seluruh aplikasi lewat guard router, bukan per layar
+- [x] Layar force update yang tidak bisa dilewati, tetap berguna tanpa
+      `store_url`
+- [x] `GET /app-config` saat cold start: mengunci sebelum siswa sempat login,
+      dan banner pembaruan opsional yang bisa ditutup
+- [x] Gagal ke arah aman — endpoint belum ada di backend dan siswa bisa offline,
+      jadi setiap kegagalan pemeriksaan diperlakukan sebagai "tidak ada info"
+
+Sisi backend ikut dikerjakan di `lms-app` branch `feat/api-v1-app-config`
+(belum di-merge): middleware `426`, `GET /app-config`, dan 9 feature test —
+lihat [10 §10](10-backend-changes.md). Kontraknya ada di
+[03](03-api-contract.md).
+
+Yang sengaja belum dikerjakan: flag pemeliharaan. Itu bukan keadaan yang selesai
+dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.
 
 ---
 
@@ -121,7 +148,8 @@ Fase terpanjang dan paling berisiko. Jangan dipadatkan.
 - [ ] Registrasi/pencabutan token FCM, izin notifikasi
 - [ ] Deep link dari notifikasi ke objek terkait
 - [ ] Daftar notifikasi in-app + tandai dibaca
-- [ ] Force update ([ADR-0013](adr/0013-versioning-api-dan-force-update.md))
+- [x] Force update ([ADR-0013](adr/0013-versioning-api-dan-force-update.md)) —
+      sisi klien sudah selesai di Fase 1; sisa pekerjaannya ada di backend
 - [ ] Ikon, splash, nama aplikasi, screenshot store
 - [ ] Data Safety (Play) & privasi (App Store)
 - [ ] Uji beta tertutup dengan **satu kelas nyata**

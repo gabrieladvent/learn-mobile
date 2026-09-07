@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Tanggal:** 2026-09-04
-- **Terkait:** [ADR-0003](0003-api-json-v1-reuse-student-actions.md), [ADR-0016](0016-envelope-response-seragam.md)
+- **Terkait:** [ADR-0003](0003-api-json-v1-reuse-student-actions.md), [ADR-0016](0016-envelope-response-seragam.md), [docs/03](../03-api-contract.md)
 
 ## Konteks
 
@@ -37,6 +37,13 @@ X-Client-Platform: android
              "message": "Versi aplikasi kamu sudah terlalu lama...",
              "min_version": "1.4.0", "store_url": "https://..." } }
 ```
+
+> **Catatan (7 September 2026).** Bentuk payload di atas sudah tidak dipakai —
+> [ADR-0016](0016-envelope-response-seragam.md) menggantikannya dengan envelope
+> seragam, jadi `client_too_old` sekarang datang sebagai `response_code`, dan
+> `min_version`/`store_url` ada di dalam `response_data`.
+> **Keputusan di ADR ini tidak berubah** — hanya letak fieldnya. Bentuk yang
+> berlaku ada di [docs/03](../03-api-contract.md).
 
 Klien menampilkan layar force update yang tidak bisa dilewati.
 
