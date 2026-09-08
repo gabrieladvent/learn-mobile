@@ -37,6 +37,13 @@ typedef ScopeConfigurator = FutureOr<void> Function(ScopeCallback callback);
 SentryEvent? scrubEvent(SentryEvent event) {
   event.request = _scrubRequest(event.request);
   event.user = _scrubUser(event.user);
+  // JANGAN HAPUS baris `ignore` di bawah: itu direktif untuk analyzer, bukan
+  // komentar penjelas. Tanpanya `flutter analyze` gagal dan CI merah.
+  //
+  // `extra` memang sudah usang, tapi selama field-nya masih ada ia masih bisa
+  // mengangkut data — dan field yang tidak lagi diperhatikan siapa pun justru
+  // tempat paling mungkin sebuah kebocoran menetap.
+  // ignore: deprecated_member_use
   event.extra = _scrubValue(event.extra) as Map<String, dynamic>?;
 
   for (final key in event.contexts.keys.toList()) {
