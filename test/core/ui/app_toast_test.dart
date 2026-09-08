@@ -30,7 +30,10 @@ Future<AppToast> pumpHost(WidgetTester tester, {ThemeData? theme}) async {
 Color opaqueBackground(WidgetTester tester) {
   final decorated = tester.widget<DecoratedBox>(
     find
-        .descendant(of: find.byType(GlassPanel), matching: find.byType(DecoratedBox))
+        .descendant(
+          of: find.byType(GlassPanel),
+          matching: find.byType(DecoratedBox),
+        )
         .first,
   );
 
@@ -41,7 +44,10 @@ Color opaqueBackground(WidgetTester tester) {
 Color borderColor(WidgetTester tester) {
   final container = tester.widget<Container>(
     find
-        .descendant(of: find.byType(GlassPanel), matching: find.byType(Container))
+        .descendant(
+          of: find.byType(GlassPanel),
+          matching: find.byType(Container),
+        )
         .first,
   );
 

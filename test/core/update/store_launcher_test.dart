@@ -14,7 +14,10 @@ class _Spy {
   final bool result;
   final Object? throws;
 
-  Future<bool> call(Uri url, {LaunchMode mode = LaunchMode.platformDefault}) async {
+  Future<bool> call(
+    Uri url, {
+    LaunchMode mode = LaunchMode.platformDefault,
+  }) async {
     called = true;
     this.url = url;
     this.mode = mode;
@@ -47,8 +50,11 @@ void main() {
         'market://details?id=id.sekolah.learn',
         'itms-apps://itunes.apple.com/app/id123',
       ]) {
-        expect(await openStoreUrl(url, launcher: _Spy().call), isTrue,
-            reason: url);
+        expect(
+          await openStoreUrl(url, launcher: _Spy().call),
+          isTrue,
+          reason: url,
+        );
       }
     });
 
@@ -64,8 +70,11 @@ void main() {
         'tel:+628123456789',
         'intent://scan/#Intent;scheme=zxing;end',
       ]) {
-        expect(await openStoreUrl(url, launcher: spy.call), isFalse,
-            reason: url);
+        expect(
+          await openStoreUrl(url, launcher: spy.call),
+          isFalse,
+          reason: url,
+        );
       }
 
       expect(spy.called, isFalse);
@@ -78,8 +87,11 @@ void main() {
       final spy = _Spy();
 
       for (final url in ['bukan url', '', 'play.google.com/store']) {
-        expect(await openStoreUrl(url, launcher: spy.call), isFalse,
-            reason: '"$url"');
+        expect(
+          await openStoreUrl(url, launcher: spy.call),
+          isFalse,
+          reason: '"$url"',
+        );
       }
 
       expect(spy.called, isFalse);

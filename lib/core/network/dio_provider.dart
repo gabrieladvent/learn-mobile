@@ -26,7 +26,7 @@ Dio dio(Ref ref) {
       ref.watch(tokenStorageProvider),
       ref.watch(appVersionProvider),
     ),
-    
+
     ErrorInterceptor(
       onClientTooOld: (info) =>
           ref.read(forceUpdateControllerProvider.notifier).reportRejected(info),

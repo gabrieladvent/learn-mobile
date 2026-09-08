@@ -49,19 +49,41 @@ per tugas — lihat [02](02-domain-model.md).
 ## Fase 1 — Kerangka aplikasi & Auth · ~1,5 minggu
 
 - [x] Tambah dependency ke `pubspec.yaml` (masih kosong hari ini)
-- [x] Flavor dev/staging/prod + `--dart-define`
+- [x] Flavor dev/staging/prod (`applicationId` terpisah per lingkungan) + `--dart-define`
 - [x] Dio + interceptor auth/error/logging, mapper `AppFailure`
 - [x] Secure storage untuk token
 - [x] go_router + guard (belum login / harus ganti password / force update)
 - [x] Tema, komponen dasar, ~~skeleton loader~~ (menyusul di Fase 2, saat ada
       daftar yang perlu ditunggu)
 - [x] Layar: splash, login, ganti password paksa
-- [ ] Sentry + penyaring data sensitif
-- [ ] CI: `analyze` + `test` (`.github/` hanya berisi berkas alat modernisasi
-      Java, tidak ada workflow)
+- [x] Sentry + penyaring data sensitif ([ADR-0018](adr/0018-crash-reporting-sentry-dengan-penyaring-klien.md))
+- [x] CI: `analyze` + `test`
 
 **Selesai kalau:** siswa bisa login dengan NISN, dipaksa ganti password, dan
 sampai di beranda kosong. Token bertahan setelah app ditutup.
+
+### Observability & CI
+
+- **CI** (`.github/workflows/ci.yml`) menjalankan `analyze` + `test` di setiap
+  PR. Langkah `build_runner` WAJIB ada di dalamnya: `*.g.dart` dan
+  `*.freezed.dart` sengaja tidak ikut ter-commit, jadi hasil checkout yang
+  bersih tidak bisa dikompilasi tanpa langkah itu.
+- **Sentry** mati secara bawaan; menyalakannya dengan
+  `--dart-define=SENTRY_DSN=...`. Penyaring data sensitif berjalan di
+  perangkat sebelum event dikirim, dan aturannya diuji di
+  `test/core/observability/` — lihat [ADR-0018](adr/0018-crash-reporting-sentry-dengan-penyaring-klien.md).
+- **Sentry ditandai UUID siswa** saat login dan dibersihkan saat logout,
+  disambungkan lewat `ref.listen` di `LearnApp` — bukan di dalam
+  `AuthController`, supaya lapisan auth tidak perlu mengenal Sentry.
+- **Flavor sungguhan**, bukan sekadar `--dart-define`: `dev`, `staging`, dan
+  `prod` punya `applicationId` sendiri (`lms.student.dev` dan seterusnya), jadi
+  build uji bisa terpasang berdampingan dengan aplikasi siswa. `applicationId`
+  bawaan template (`com.example.learn_mobile`) diganti — Play Store menolak
+  awalan `com.example`, dan nilainya tidak bisa diubah setelah terbit.
+  Konsekuensinya `flutter run` sekarang **wajib** memakai `--flavor`.
+- Cara unggah simbol untuk build `prod` ter-*obfuscate* ada di
+  [04](04-app-architecture.md#simbol-untuk-build-ter-obfuscate). Belum
+  diotomatiskan di CI karena butuh token Sentry sebagai secret repo.
 
 ### Force update ([ADR-0013](adr/0013-versioning-api-dan-force-update.md))
 
@@ -80,10 +102,9 @@ keadaan yang menyesatkan: `426` diterjemahkan tapi tidak ada yang menindaknya.
 - [x] Gagal ke arah aman — endpoint belum ada di backend dan siswa bisa offline,
       jadi setiap kegagalan pemeriksaan diperlakukan sebagai "tidak ada info"
 
-Sisi backend ikut dikerjakan di `lms-app` branch `feat/api-v1-app-config`
-(belum di-merge): middleware `426`, `GET /app-config`, dan 9 feature test —
-lihat [10 §10](10-backend-changes.md). Kontraknya ada di
-[03](03-api-contract.md).
+Sisi backend sudah masuk `development` di `lms-app`: middleware `426`,
+`GET /app-config`, dan 9 feature test — lihat [10 §10](10-backend-changes.md).
+Kontraknya ada di [03](03-api-contract.md).
 
 Yang sengaja belum dikerjakan: flag pemeliharaan. Itu bukan keadaan yang selesai
 dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.

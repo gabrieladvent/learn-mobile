@@ -49,7 +49,7 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.surface.withValues(alpha: 0.78),
-        
+
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md + 2,
           vertical: AppSpacing.md - 4,

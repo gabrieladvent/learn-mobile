@@ -178,11 +178,59 @@ token, password, dan NISN** sebelum dikirim ke Sentry.
 Tiga flavor: `dev`, `staging`, `prod`. Base URL dan DSN Sentry lewat
 `--dart-define`, bukan file yang ikut ter-commit.
 
+Menuliskan semuanya di baris perintah cepat jadi panjang dan mudah salah ketik,
+jadi nilainya ditaruh di berkas:
+
+```
+cp env/dev.example.env env/dev.env     # sekali saja, lalu isi nilainya
+flutter run --flavor dev --dart-define-from-file=env/dev.env
+```
+
+`env/*.env` **tidak ikut ter-commit**; yang ada di repo hanya `*.example.env`
+sebagai contoh isinya. Di VS Code, ketiga lingkungan sudah tersedia sebagai
+konfigurasi Run di `.vscode/launch.json`, jadi tinggal pilih lalu F5.
+
+Cara lama tetap jalan dan berguna untuk sekali pakai — `--dart-define` menang
+atas nilai di berkas:
+
 ```
 flutter run --flavor dev --dart-define=API_BASE_URL=https://lms.test/api/v1
 ```
 
+**`--flavor` sekarang wajib.** Setelah productFlavors ada di Gradle, `flutter
+run` tanpa `--flavor` akan gagal. Ini harga yang dibayar untuk manfaatnya:
+ketiganya punya `applicationId` berbeda, jadi build dev bisa terpasang
+berdampingan dengan aplikasi prod milik siswa — yang justru dibutuhkan saat uji
+lapangan di sekolah.
+
+| Flavor | applicationId | Nama di layar |
+|--------|---------------|---------------|
+| `dev` | `lms.student.dev` | Learn Dev |
+| `staging` | `lms.student.staging` | Learn Staging |
+| `prod` | `lms.student` | Learn |
+
+`lms.student` **tidak bisa diubah** setelah aplikasi terbit di Play Store —
+Play memakainya sebagai kunci utama aplikasi.
+
 Build `prod` wajib: `--obfuscate --split-debug-info`.
+
+### Simbol untuk build ter-*obfuscate*
+
+Obfuscation mengacak nama fungsi, jadi stack trace di Sentry menjadi tidak
+terbaca sampai simbolnya diunggah. Keduanya harus dilakukan bersamaan — build
+yang simbolnya tidak terunggah menghasilkan laporan yang tidak berguna:
+
+```
+flutter build appbundle --flavor prod \
+  --obfuscate --split-debug-info=build/symbols/<versi> \
+  --dart-define=SENTRY_DSN=... --dart-define=API_BASE_URL=...
+
+sentry-cli debug-files upload --include-sources build/symbols/<versi>
+```
+
+Simpan `build/symbols/<versi>` per rilis. Simbol yang hilang berarti crash dari
+versi itu **tidak akan pernah** bisa dibaca lagi — tidak ada cara memulihkannya
+setelah build-nya dilupakan.
 
 ## Yang sengaja tidak dipakai
 

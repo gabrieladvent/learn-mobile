@@ -39,14 +39,15 @@ class _StubAdapter implements HttpClientAdapter {
 }
 
 ApiClient _clientThat(HttpClientAdapter adapter) {
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://contoh.test/api/v1',
-      validateStatus: (status) => status != null && status < 400,
-    ),
-  )
-    ..httpClientAdapter = adapter
-    ..interceptors.add(ErrorInterceptor());
+  final dio =
+      Dio(
+          BaseOptions(
+            baseUrl: 'https://contoh.test/api/v1',
+            validateStatus: (status) => status != null && status < 400,
+          ),
+        )
+        ..httpClientAdapter = adapter
+        ..interceptors.add(ErrorInterceptor());
 
   return ApiClient(dio);
 }

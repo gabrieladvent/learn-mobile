@@ -1,6 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Aplikasi ini TIDAK BISA berfungsi tanpa jaringan, jadi izinnya
+         dinyatakan sendiri di sini.
+
+         Template Flutter hanya menaruh INTERNET di manifest debug dan profile —
+         build RILIS tidak mendapatkannya. Selama ini izin itu kebetulan ikut
+         terbawa dari AAR `io.sentry:sentry-android-core`, jadi kalau Sentry
+         suatu saat dilepas, build rilis kehilangan akses jaringan dan SETIAP
+         panggilan API gagal. Kegagalan seperti itu tidak muncul di debug, jadi
+         baru ketahuan setelah APK-nya sampai ke siswa. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="learn_mobile"
+        android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

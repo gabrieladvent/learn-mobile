@@ -13,14 +13,24 @@ android {
     compileSdkMinor = 0
     ndkVersion = flutter.ndkVersion
 
+    buildFeatures {
+        // Sejak AGP 9, `resValue` di productFlavors harus dinyalakan eksplisit.
+        // Tanpa baris ini build gagal dengan "contains custom resource values,
+        // but the feature is disabled" — dan pesannya tidak menyebut di mana
+        // harus dinyalakan.
+        resValues = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.learn_mobile"
+        // Identitas aplikasi di Play Store. TIDAK BISA DIUBAH setelah aplikasi
+        // terbit — Play memakainya sebagai kunci utama, dan mengubahnya berarti
+        // aplikasi baru yang kehilangan seluruh pemasangan dan ulasannya.
+        applicationId = "lms.student"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -31,6 +41,40 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    // Tiga lingkungan, dengan applicationId yang berbeda-beda.
+    //
+    // Kenapa bukan cuma `--dart-define`: dart-define hanya mengubah nilai DI
+    // DALAM aplikasi. Selama applicationId-nya sama, Android menganggap semua
+    // build itu aplikasi yang sama — memasang build dev akan MENIMPA aplikasi
+    // prod milik siswa, dan keduanya tidak bisa hidup berdampingan di satu HP.
+    // Padahal itu persis yang dibutuhkan saat uji lapangan di sekolah nanti.
+    //
+    // Nama aplikasinya juga dibedakan supaya di layar HP tidak ada yang salah
+    // buka: "Learn Dev" jelas bukan aplikasi yang dipakai siswa sungguhan.
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Learn Dev")
+        }
+
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "app_name", "Learn Staging")
+        }
+
+        // Tanpa akhiran: inilah yang terbit ke Play Store.
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "Learn")
+        }
     }
 
     buildTypes {

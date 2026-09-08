@@ -60,3 +60,8 @@ test/preview/
 # Gambar pembanding yang ditulis otomatis saat golden test gagal. Selalu bisa
 # dibuat ulang, dan tidak ada gunanya di riwayat.
 test/failures/
+
+# Nilai konfigurasi per lingkungan (alamat backend, DSN Sentry). Yang ikut
+# ter-commit hanya berkas *.example.env sebagai contoh isinya.
+env/*.env
+!env/*.example.env

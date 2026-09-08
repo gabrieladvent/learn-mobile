@@ -107,7 +107,7 @@ class _AppBackgroundState extends State<AppBackground>
                           alpha: isDark ? 0.14 : 0.10,
                         ),
                       ),
-                      
+
                       _Blob(
                         base: const Alignment(-0.15, 0.6),
                         drift: Offset(

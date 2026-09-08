@@ -4,9 +4,9 @@ import 'package:learn_mobile/core/theme/app_theme.dart';
 import 'package:learn_mobile/core/ui/password_field.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: AppTheme.light,
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('PasswordField', () {
@@ -20,7 +20,10 @@ void main() {
         ),
       );
 
-      expect(tester.widget<TextField>(find.byType(TextField)).obscureText, isTrue);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).obscureText,
+        isTrue,
+      );
     });
 
     testWidgets('tombol mata membuka dan menutup lagi', (tester) async {
@@ -50,7 +53,9 @@ void main() {
       );
     });
 
-    testWidgets('label tampil DI ATAS kotak, bukan di dalamnya', (tester) async {
+    testWidgets('label tampil DI ATAS kotak, bukan di dalamnya', (
+      tester,
+    ) async {
       // Label yang mengambang di dalam kotak menyusut jadi ~12px saat diketik
       // dan berebut tempat dengan teks contoh. Di formulir ini kita butuh
       // keduanya terbaca sekaligus.
