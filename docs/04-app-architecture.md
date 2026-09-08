@@ -178,6 +178,21 @@ token, password, dan NISN** sebelum dikirim ke Sentry.
 Tiga flavor: `dev`, `staging`, `prod`. Base URL dan DSN Sentry lewat
 `--dart-define`, bukan file yang ikut ter-commit.
 
+Menuliskan semuanya di baris perintah cepat jadi panjang dan mudah salah ketik,
+jadi nilainya ditaruh di berkas:
+
+```
+cp env/dev.example.env env/dev.env     # sekali saja, lalu isi nilainya
+flutter run --flavor dev --dart-define-from-file=env/dev.env
+```
+
+`env/*.env` **tidak ikut ter-commit**; yang ada di repo hanya `*.example.env`
+sebagai contoh isinya. Di VS Code, ketiga lingkungan sudah tersedia sebagai
+konfigurasi Run di `.vscode/launch.json`, jadi tinggal pilih lalu F5.
+
+Cara lama tetap jalan dan berguna untuk sekali pakai — `--dart-define` menang
+atas nilai di berkas:
+
 ```
 flutter run --flavor dev --dart-define=API_BASE_URL=https://lms.test/api/v1
 ```

@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Learn (dev)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "toolArgs": ["--flavor", "dev", "--dart-define-from-file", "env/dev.env"]
+    },
+    {
+      "name": "Learn (staging)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "toolArgs": [
+        "--flavor",
+        "staging",
+        "--dart-define-from-file",
+        "env/staging.env"
+      ]
+    },
+    {
+      "name": "Learn (prod)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "toolArgs": ["--flavor", "prod", "--dart-define-from-file", "env/prod.env"]
+    }
+  ]
+}
