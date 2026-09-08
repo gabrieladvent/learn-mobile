@@ -71,7 +71,9 @@ void main() {
       // `PopScope` generiknya tidak eksplisit di layar ini, jadi dicari lewat
       // predikat — bukan `byType` yang butuh tipe persis.
       expect(
-        find.byWidgetPredicate((widget) => widget is PopScope && !widget.canPop),
+        find.byWidgetPredicate(
+          (widget) => widget is PopScope && !widget.canPop,
+        ),
         findsOne,
       );
     });

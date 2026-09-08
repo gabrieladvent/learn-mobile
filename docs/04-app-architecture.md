@@ -182,7 +182,40 @@ Tiga flavor: `dev`, `staging`, `prod`. Base URL dan DSN Sentry lewat
 flutter run --flavor dev --dart-define=API_BASE_URL=https://lms.test/api/v1
 ```
 
+**`--flavor` sekarang wajib.** Setelah productFlavors ada di Gradle, `flutter
+run` tanpa `--flavor` akan gagal. Ini harga yang dibayar untuk manfaatnya:
+ketiganya punya `applicationId` berbeda, jadi build dev bisa terpasang
+berdampingan dengan aplikasi prod milik siswa — yang justru dibutuhkan saat uji
+lapangan di sekolah.
+
+| Flavor | applicationId | Nama di layar |
+|--------|---------------|---------------|
+| `dev` | `lms.student.dev` | Learn Dev |
+| `staging` | `lms.student.staging` | Learn Staging |
+| `prod` | `lms.student` | Learn |
+
+`lms.student` **tidak bisa diubah** setelah aplikasi terbit di Play Store —
+Play memakainya sebagai kunci utama aplikasi.
+
 Build `prod` wajib: `--obfuscate --split-debug-info`.
+
+### Simbol untuk build ter-*obfuscate*
+
+Obfuscation mengacak nama fungsi, jadi stack trace di Sentry menjadi tidak
+terbaca sampai simbolnya diunggah. Keduanya harus dilakukan bersamaan — build
+yang simbolnya tidak terunggah menghasilkan laporan yang tidak berguna:
+
+```
+flutter build appbundle --flavor prod \
+  --obfuscate --split-debug-info=build/symbols/<versi> \
+  --dart-define=SENTRY_DSN=... --dart-define=API_BASE_URL=...
+
+sentry-cli debug-files upload --include-sources build/symbols/<versi>
+```
+
+Simpan `build/symbols/<versi>` per rilis. Simbol yang hilang berarti crash dari
+versi itu **tidak akan pernah** bisa dibaca lagi — tidak ada cara memulihkannya
+setelah build-nya dilupakan.
 
 ## Yang sengaja tidak dipakai
 

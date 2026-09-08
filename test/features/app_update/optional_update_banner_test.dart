@@ -35,9 +35,7 @@ Future<ProviderContainer> _pump(
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(
-        home: Scaffold(body: OptionalUpdateBanner()),
-      ),
+      child: const MaterialApp(home: Scaffold(body: OptionalUpdateBanner())),
     ),
   );
 

@@ -58,9 +58,9 @@ Future<void> loadRoboto() async {
     final loader = FontLoader(entry.key);
     for (final file in entry.value) {
       loader.addFont(
-        File('$_fontDir/$file').readAsBytes().then(
-              (bytes) => bytes.buffer.asByteData(),
-            ),
+        File('$_fontDir/$file')
+            .readAsBytes()
+            .then((bytes) => bytes.buffer.asByteData()),
       );
     }
     await loader.load();
@@ -112,7 +112,12 @@ void main() {
   });
 
   testWidgets('login gelap', (tester) async {
-    await shoot(tester, 'login_dark', const LoginScreen(), theme: AppTheme.dark);
+    await shoot(
+      tester,
+      'login_dark',
+      const LoginScreen(),
+      theme: AppTheme.dark,
+    );
   });
 
   testWidgets('tiga jenis pesan sekilas', (tester) async {
@@ -168,7 +173,12 @@ void main() {
   });
 
   testWidgets('onboarding gelap', (tester) async {
-    await shoot(tester, 'intro_dark', const IntroScreen(), theme: AppTheme.dark);
+    await shoot(
+      tester,
+      'intro_dark',
+      const IntroScreen(),
+      theme: AppTheme.dark,
+    );
   });
 
   testWidgets('beranda terang', (tester) async {

@@ -117,10 +117,10 @@ di layar error tanpa jalan keluar. Ini alasan `code` wajib ada.
 
 ### `GET /app-config`
 
-Sudah diimplementasikan di `lms-app` (branch `feat/api-v1-app-config`, belum
-di-merge). Klien tetap memperlakukan kegagalan endpoint ini sebagai "tidak ada
-info" dan berjalan normal — supaya urutan rilis mobile dan backend tidak saling
-menyandera.
+Sudah ada di `lms-app` (branch `development`). Klien tetap memperlakukan
+kegagalan endpoint ini sebagai "tidak ada info" dan berjalan normal — supaya
+urutan rilis mobile dan backend tidak saling menyandera, dan supaya versi lama
+yang beredar tidak rusak kalau endpoint ini suatu saat berubah.
 
 Satu-satunya endpoint yang **tanpa autentikasi**: dipanggil saat cold start,
 sebelum siswa login. Isinya tidak bergantung pada siapa yang memanggil.

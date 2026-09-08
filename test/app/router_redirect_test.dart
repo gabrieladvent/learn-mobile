@@ -4,15 +4,15 @@ import 'package:learn_mobile/features/auth/domain/auth_session.dart';
 import 'package:learn_mobile/features/auth/domain/student.dart';
 
 AuthSession _session({bool mustChangePassword = false}) => AuthSession(
-      token: 'token',
-      student: const Student(
-        id: 'id',
-        fullName: 'Budi Santoso',
-        nisn: '1234567890',
-        className: 'X IPA 1',
-      ),
-      mustChangePassword: mustChangePassword,
-    );
+  token: 'token',
+  student: const Student(
+    id: 'id',
+    fullName: 'Budi Santoso',
+    nisn: '1234567890',
+    className: 'X IPA 1',
+  ),
+  mustChangePassword: mustChangePassword,
+);
 
 String? redirect({
   bool rejectedByServer = false,
@@ -20,14 +20,13 @@ String? redirect({
   bool? introSeen = true,
   AuthSession? session,
   required String here,
-}) =>
-    resolveRedirect(
-      rejectedByServer: rejectedByServer,
-      stillLoading: stillLoading,
-      introSeen: introSeen,
-      session: session,
-      here: here,
-    );
+}) => resolveRedirect(
+  rejectedByServer: rejectedByServer,
+  stillLoading: stillLoading,
+  introSeen: introSeen,
+  session: session,
+  here: here,
+);
 
 void main() {
   group('resolveRedirect', () {
@@ -98,10 +97,7 @@ void main() {
       // REGRESI. `/change-password` sempat tidak terdaftar sebagai pintu masuk:
       // guard melepaskannya, tapi tidak ada yang memindahkannya. Siswa berhasil
       // ganti password lalu diam di layar yang sama tanpa tahu harus apa.
-      expect(
-        redirect(session: _session(), here: '/change-password'),
-        '/home',
-      );
+      expect(redirect(session: _session(), here: '/change-password'), '/home');
     });
 
     test('setelah intro selesai, siswa tidak tertinggal di sana', () {

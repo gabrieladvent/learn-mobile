@@ -208,9 +208,8 @@ Lihat [ADR-0013](adr/0013-versioning-api-dan-force-update.md).
 - [x] Endpoint `GET /app-config` berisi versi minimum & terbaru.
 - [ ] Flag pemeliharaan — ditunda sampai klien punya layar untuk menampilkannya.
 
-Dikerjakan di branch `feat/api-v1-app-config` (belum di-merge): middleware
-`EnsureClientSupported`, `GET /api/v1/app-config`, config `mobile_app.php`, dan
-9 feature test.
+Sudah masuk `development`: middleware `EnsureClientSupported`,
+`GET /api/v1/app-config`, config `mobile_app.php`, dan 9 feature test.
 
 Dua keputusan yang perlu diketahui saat review:
 

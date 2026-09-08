@@ -19,9 +19,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final controller = container.read(
-        forceUpdateControllerProvider.notifier,
-      );
+      final controller = container.read(forceUpdateControllerProvider.notifier);
 
       controller.reportRejected(const ForceUpdateInfo(message: 'pertama'));
       controller.reportRejected(const ForceUpdateInfo(message: 'kedua'));

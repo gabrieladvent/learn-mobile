@@ -38,14 +38,15 @@ class _StubAdapter implements HttpClientAdapter {
 Future<List<ForceUpdateInfo>> _reportsFrom(int statusCode, Object body) async {
   final reports = <ForceUpdateInfo>[];
 
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://contoh.test/api/v1',
-      validateStatus: (status) => status != null && status < 400,
-    ),
-  )
-    ..httpClientAdapter = _StubAdapter(statusCode, body)
-    ..interceptors.add(ErrorInterceptor(onClientTooOld: reports.add));
+  final dio =
+      Dio(
+          BaseOptions(
+            baseUrl: 'https://contoh.test/api/v1',
+            validateStatus: (status) => status != null && status < 400,
+          ),
+        )
+        ..httpClientAdapter = _StubAdapter(statusCode, body)
+        ..interceptors.add(ErrorInterceptor(onClientTooOld: reports.add));
 
   try {
     await dio.get<dynamic>('/dashboard');
@@ -114,17 +115,18 @@ void main() {
     test('426 tetap sampai ke pemanggil sebagai ClientTooOldFailure', () async {
       // Laporan global TIDAK menggantikan penanganan error biasa: layar yang
       // memicunya tetap perlu tahu permintaannya gagal.
-      final dio = Dio(
-        BaseOptions(
-          baseUrl: 'https://contoh.test/api/v1',
-          validateStatus: (status) => status != null && status < 400,
-        ),
-      )
-        ..httpClientAdapter = _StubAdapter(426, {
-          'response_code': 'client_too_old',
-          'response_message': 'Perbarui aplikasi kamu dulu.',
-        })
-        ..interceptors.add(ErrorInterceptor());
+      final dio =
+          Dio(
+              BaseOptions(
+                baseUrl: 'https://contoh.test/api/v1',
+                validateStatus: (status) => status != null && status < 400,
+              ),
+            )
+            ..httpClientAdapter = _StubAdapter(426, {
+              'response_code': 'client_too_old',
+              'response_message': 'Perbarui aplikasi kamu dulu.',
+            })
+            ..interceptors.add(ErrorInterceptor());
 
       await expectLater(
         dio.get<dynamic>('/dashboard'),

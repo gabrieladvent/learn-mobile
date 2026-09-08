@@ -36,7 +36,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
           'Lihat apa yang harus dikerjakan dan kapan batas waktunya, '
           'lalu kumpulkan langsung dari HP.',
     ),
-    
+
     _IntroContent(
       colors: AppGradients.warm,
       icon: Icons.timer_rounded,
