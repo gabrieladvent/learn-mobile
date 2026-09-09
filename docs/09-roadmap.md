@@ -113,7 +113,7 @@ dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.
 
 ## Fase 2 — Beranda, Course, Materi · ~2 minggu
 
-- [ ] Beranda: stats, daftar course, pin/unpin optimistis
+- [~] Beranda: stats & daftar course **selesai**; pin/unpin optimistis menyusul
 - [ ] To-do list tiga seksi
 - [ ] Detail course dengan pengelompokan per topik
 - [ ] Detail materi: teks, link, daftar file

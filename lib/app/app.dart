@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/observability/crash_reporting.dart';
 import '../core/theme/app_theme.dart';
+import '../core/ui/app_scroll_behavior.dart';
 import '../core/update/update_check.dart';
 import '../features/auth/application/auth_controller.dart';
 import 'router.dart';
@@ -24,6 +25,7 @@ class LearnApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
+      scrollBehavior: const AppScrollBehavior(),
       routerConfig: ref.watch(routerProvider),
     );
   }
