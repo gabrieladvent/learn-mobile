@@ -15,9 +15,15 @@ abstract final class AppSemantic {
   static const _infoLight = Color(0xFF1D4ED8);
   static const _infoDark = Color(0xFF7DA2FF);
 
+  static const _warningLight = Color(0xFFB45309);
+  static const _warningDark = Color(0xFFFBBF24);
+
   static Color success(Brightness brightness) =>
       brightness == Brightness.dark ? _successDark : _successLight;
 
   static Color info(Brightness brightness) =>
       brightness == Brightness.dark ? _infoDark : _infoLight;
+
+  static Color warning(Brightness brightness) =>
+      brightness == Brightness.dark ? _warningDark : _warningLight;
 }
