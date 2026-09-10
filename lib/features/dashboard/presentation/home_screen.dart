@@ -29,10 +29,8 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         title: const Text('Beranda'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Keluar',
-            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+          _LogoutButton(
+            onPressed: ref.read(authControllerProvider.notifier).logout,
           ),
         ],
       ),
@@ -62,6 +60,33 @@ class HomeScreen extends ConsumerWidget {
                 const _LoadingState(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LogoutButton extends StatelessWidget {
+  const _LogoutButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.sm),
+      child: IconButton(
+        onPressed: onPressed,
+        tooltip: 'Keluar',
+        icon: const Icon(Icons.logout_rounded, size: 20),
+        style: IconButton.styleFrom(
+          backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
+          foregroundColor: theme.colorScheme.onSurfaceVariant,
+          shape: const CircleBorder(),
+          minimumSize: const Size(40, 40),
+          padding: EdgeInsets.zero,
         ),
       ),
     );
@@ -125,6 +150,7 @@ class _LoadingState extends StatelessWidget {
     return Column(
       children: [
         GridView.count(
+          padding: EdgeInsets.zero,
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -155,7 +181,8 @@ class _Skeleton extends StatelessWidget {
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+          color: Theme.of(context).colorScheme.onSurface
+              .withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(AppSpacing.radius),
         ),
       ),
