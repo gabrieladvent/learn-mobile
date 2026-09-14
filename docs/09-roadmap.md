@@ -113,7 +113,7 @@ dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.
 
 ## Fase 2 — Beranda, Course, Materi · ~2 minggu
 
-- [~] Beranda: stats & daftar course **selesai**; pin/unpin optimistis menyusul
+- [x] Beranda: stats, daftar course, pin/unpin optimistis
 - [ ] To-do list tiga seksi
 - [ ] Detail course dengan pengelompokan per topik
 - [ ] Detail materi: teks, link, daftar file
@@ -124,6 +124,18 @@ dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.
 
 **Selesai kalau:** siswa bisa menjelajah semua materinya, dan membuka aplikasi
 dalam mode pesawat masih menampilkan konten yang pernah dibuka.
+
+**Ditunda dengan pemicu yang jelas** — bukan "nanti":
+
+- **Batas ukuran cache.** Tabel `cached_documents` hanya berisi payload teks,
+  dan file unduhan tidak masuk ke sana. *Pemicu:* setelah detail materi ikut
+  di-cache, ukur isi database di perangkat uji dengan data satu semester
+  penuh. Batas baru dipasang kalau angkanya memang besar — batas yang
+  dikarang sebelum diukur hampir selalu salah.
+- **`sqlite3_flutter_libs` & `sqlcipher_flutter_libs` bertanda `+eol`.**
+  Ditarik oleh `drift_flutter`, bukan dipilih langsung. *Pemicu:* periksa
+  ulang setiap kali menaikkan versi Drift, atau segera kalau ada celah
+  keamanan SQLite yang diumumkan.
 
 ---
 

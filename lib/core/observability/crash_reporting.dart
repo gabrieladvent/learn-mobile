@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../config/app_config.dart';
+import 'sentry_extra.dart';
 
 Future<void> runWithCrashReporting(
   Future<void> Function() appRunner, {
@@ -40,7 +41,7 @@ typedef ScopeConfigurator = FutureOr<void> Function(ScopeCallback callback);
 SentryEvent? scrubEvent(SentryEvent event) {
   event.request = _scrubRequest(event.request);
   event.user = _scrubUser(event.user);
-  event.extra = _scrubValue(event.extra) as Map<String, dynamic>?;
+  scrubEventExtra(event, _scrubValue);
 
   for (final key in event.contexts.keys.toList()) {
     final value = event.contexts[key];

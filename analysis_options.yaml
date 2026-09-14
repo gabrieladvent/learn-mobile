@@ -18,6 +18,11 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Menyentuh `SentryEvent.extra` yang sudah usang. Dikecualikan lewat
+    # konfigurasi, bukan `// ignore:`, karena direktif komentar berulang kali
+    # hilang saat komentar dibersihkan — lihat lib/core/observability/sentry_extra.dart.
+    - lib/core/observability/sentry_extra.dart
+    - test/core/observability/sentry_extra_test.dart
 
 linter:
   # The lint rules applied to this project can be customized in the

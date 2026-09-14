@@ -67,7 +67,10 @@ void main() {
 
       expect(adapter.lastPath, '/dashboard');
       // Payload MENTAH, bukan model — inilah yang disimpan apa adanya ke cache.
-      expect((payload['courses'] as List).single, containsPair('subject_name', 'Matematika'));
+      expect(
+        (payload['courses'] as List).single,
+        containsPair('subject_name', 'Matematika'),
+      );
     });
 
     test('response_data yang tidak ada tidak membuatnya gagal', () async {

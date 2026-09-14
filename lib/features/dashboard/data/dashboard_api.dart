@@ -15,6 +15,16 @@ class DashboardApi {
 
     return ApiEnvelope.fromJson(res.data!).data ?? const {};
   }
+
+  Future<void> setPinned(String courseId, {required bool pinned}) async {
+    final path = '/courses/$courseId/pin';
+
+    if (pinned) {
+      await _client.post<Map<String, dynamic>>(path);
+    } else {
+      await _client.delete<Map<String, dynamic>>(path);
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)

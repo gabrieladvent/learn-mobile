@@ -7,10 +7,12 @@ import '../../../core/theme/app_accents.dart';
 import '../../../core/theme/app_semantic.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/ui/app_background.dart';
+import '../../../core/ui/app_toast.dart';
 import '../../../core/ui/glass_surface.dart';
 import '../../app_update/presentation/optional_update_banner.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/student.dart';
+import '../application/course_pin_controller.dart';
 import '../application/dashboard_controller.dart';
 import '../domain/dashboard.dart';
 import 'widgets/course_card.dart';
@@ -73,6 +75,30 @@ class _LogoutButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
+  Future<void> _confirm(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar dari akun?'),
+        content: const Text(
+          'Kamu perlu memasukkan NISN dan password lagi untuk masuk.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) onPressed();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -80,7 +106,7 @@ class _LogoutButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: AppSpacing.sm),
       child: IconButton(
-        onPressed: onPressed,
+        onPressed: () => _confirm(context),
         tooltip: 'Keluar',
         icon: const Icon(Icons.logout_rounded, size: 20),
         style: IconButton.styleFrom(
@@ -95,15 +121,16 @@ class _LogoutButton extends StatelessWidget {
   }
 }
 
-class _DashboardBody extends StatelessWidget {
+class _DashboardBody extends ConsumerWidget {
   const _DashboardBody({required this.cached});
 
   final Cached<Dashboard> cached;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final dashboard = cached.value;
+    final pinOverrides = ref.watch(coursePinControllerProvider);
     final courses = dashboard.courses;
 
     return Column(
@@ -130,7 +157,16 @@ class _DashboardBody extends StatelessWidget {
           const _EmptyCourses()
         else
           for (final course in courses) ...[
-            CourseCard(course: course),
+            CourseCard(
+              course: course,
+              isPinned: pinOverrides[course.id] ?? course.isPinned,
+              onTogglePin: () => _togglePin(
+                context,
+                ref,
+                course.id,
+                pinned: !(pinOverrides[course.id] ?? course.isPinned),
+              ),
+            ),
             const SizedBox(height: AppSpacing.sm),
           ],
         if (dashboard.meta?.inspire case final quote?) ...[
@@ -146,6 +182,27 @@ class _DashboardBody extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  Future<void> _togglePin(
+    BuildContext context,
+    WidgetRef ref,
+    String courseId, {
+    required bool pinned,
+  }) async {
+    final toast = AppToast.of(context);
+
+    try {
+      await ref
+          .read(coursePinControllerProvider.notifier)
+          .toggle(courseId, pinned: pinned);
+    } on AppFailure catch (failure) {
+      toast.showFailure(
+        failure is NetworkFailure
+            ? 'Belum tersimpan — periksa koneksimu, lalu coba lagi.'
+            : failure.message,
+      );
+    }
   }
 }
 

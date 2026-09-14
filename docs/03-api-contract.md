@@ -235,6 +235,10 @@ Membungkus `GetStudentDashboard`.
 
 Course sudah **terurut dengan yang di-pin di atas** — klien tidak perlu mengurut ulang.
 
+`meta.inspire` berisi peribahasa atau kutipan berbahasa Indonesia yang berganti
+di setiap permintaan (`App\Support\StudentQuotes`). Sebelumnya dari
+`Inspiring::quote()` bawaan Laravel, yang seluruhnya berbahasa Inggris.
+
 ⚠️ Field `url` yang ada di payload web (hasil `route()` Laravel) **harus dibuang
 dari response API.** URL web tidak berarti apa-apa di aplikasi; klien menyusun
 rutenya sendiri dari `id`. Membiarkannya masuk bikin klien tergoda memakainya
@@ -266,7 +270,16 @@ Membungkus `BuildStudentTodoList`.
 rute bersarang ke detail tugas/ujian.
 
 ### `POST /courses/{course}/pin` · `DELETE /courses/{course}/pin`
-Response `204`. Idempoten — pin dua kali tidak error.
+Response `200` dengan envelope tanpa `response_data`
+(`"Mata pelajaran disematkan."` / `"Sematan dilepas."`). Idempoten — pin dua
+kali atau melepas yang belum di-pin tidak error.
+
+Course di luar kelas siswa dibalas `404 not_found` dengan pesan yang sama
+dengan course yang memang tidak ada — sengaja, supaya tidak membocorkan
+keberadaan course milik kelas lain.
+
+Server **tidak** mengembalikan urutan baru. Klien menyegarkan `GET /dashboard`
+setelah berhasil, dan urutan dari situ yang dipakai.
 
 ---
 

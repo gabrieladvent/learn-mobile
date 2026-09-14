@@ -23,6 +23,9 @@ class _FakeApi implements DashboardApi {
 
     return payload!;
   }
+
+  @override
+  Future<void> setPinned(String courseId, {required bool pinned}) async {}
 }
 
 Map<String, dynamic> payloadWith(String subject) => {
