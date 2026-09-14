@@ -109,6 +109,14 @@ kebijakan sekolah yang melarang data keluar sama sekali.
 - `SentryUser` tidak boleh pernah diisi nama atau NISN. Penyaring sudah
   membuangnya sebagai lapis kedua, tapi lapis pertama tetap tanggung jawab
   pemanggil.
+- **Akses ke `SentryEvent.extra` hanya boleh ada di
+  `lib/core/observability/sentry_extra.dart`**, yang dikecualikan dari analisis
+  di `analysis_options.yaml`. `extra` sudah ditandai usang oleh Sentry, tapi
+  masih hidup: `Scope.setExtra` digabungkan ke setiap event, dan transaksi
+  mengisinya dari data tracer. Karena itu penyaringnya tidak boleh dihapus.
+  Pengecualian dipasang lewat konfigurasi, bukan `// ignore:`, karena direktif
+  berbentuk komentar tiga kali hilang saat komentar dibersihkan, dan setiap kali
+  itu CI merah. Jangan pindahkan akses `extra` ke berkas lain.
 - Sebelum DSN dinyalakan di `prod`: sepakati masa retensi di Sentry, dan
   cantumkan keberadaannya di dokumen privasi Play/App Store.
 - Build `prod` wajib `--obfuscate --split-debug-info`, jadi simbol perlu

@@ -41,7 +41,7 @@ class AppAccents extends ThemeExtension<AppAccents> {
           final scheme = ColorScheme.fromSeed(
             seedColor: hue,
             brightness: brightness,
-            dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
+            dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
           );
 
           return AppAccent(

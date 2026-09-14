@@ -49,7 +49,7 @@ class CacheStore {
             ),
           );
     } catch (_) {
-      // 
+      //
     }
   }
 
@@ -59,7 +59,7 @@ class CacheStore {
         _db.cachedDocuments,
       )..where((t) => t.key.equals(key))).go();
     } catch (_) {
-      // 
+      //
     }
   }
 
@@ -67,7 +67,7 @@ class CacheStore {
     try {
       await _db.delete(_db.cachedDocuments).go();
     } catch (_) {
-      // 
+      //
     }
   }
 }

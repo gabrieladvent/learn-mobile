@@ -44,6 +44,9 @@ class DashboardRepository {
       );
     }
   }
+
+  Future<void> setPinned(String courseId, {required bool pinned}) =>
+      _api.setPinned(courseId, pinned: pinned);
 }
 
 @Riverpod(keepAlive: true)
