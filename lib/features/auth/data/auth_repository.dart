@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/cache/cache_store.dart';
 import '../../../core/error/app_failure.dart';
 import '../../../core/storage/token_storage.dart';
 import '../domain/auth_session.dart';
@@ -8,17 +9,12 @@ import 'auth_api.dart';
 
 part 'auth_repository.g.dart';
 
-/// Repository = tempat KEBIJAKAN diputuskan.
-///
-/// [AuthApi] tahu cara memanggil endpoint; repository yang memutuskan token
-/// disimpan ke mana, kapan dihapus, dan apa yang terjadi kalau token ternyata
-/// sudah tidak berlaku. Nanti kebijakan cache dan outbox juga tinggal di sini,
-/// bukan di provider maupun di layar.
 class AuthRepository {
-  const AuthRepository(this._api, this._tokens);
+  const AuthRepository(this._api, this._tokens, this._cache);
 
   final AuthApi _api;
   final TokenStorage _tokens;
+  final CacheStore _cache;
 
   Future<AuthSession> login({
     required String nisn,
@@ -33,7 +29,6 @@ class AuthRepository {
 
     final token = data['token'] as String;
 
-    // Token disimpan DULU: permintaan berikutnya butuh header Authorization.
     await _tokens.write(token);
 
     return AuthSession(
@@ -43,11 +38,6 @@ class AuthRepository {
     );
   }
 
-  /// Memulihkan sesi saat aplikasi dibuka.
-  ///
-  /// Mengembalikan `null` kalau memang belum pernah login. Token yang ternyata
-  /// sudah dicabut server (401) dianggap sama dengan belum login — tokennya
-  /// dibuang supaya tidak dipakai lagi.
   Future<AuthSession?> restore() async {
     final token = await _tokens.read();
     if (token == null) return null;
@@ -67,13 +57,8 @@ class AuthRepository {
       await _tokens.clear();
       rethrow;
     }
-    // Kegagalan jaringan SENGAJA dibiarkan naik. Nanti saat cache offline
-    // dibangun (docs/06), sesi lama dipakai supaya siswa tetap bisa membuka
-    // materi yang sudah pernah diunduh tanpa sinyal.
   }
 
-  /// Ganti password. Token TIDAK berubah — server tetap menerima token yang
-  /// sama setelah password diganti, jadi siswa tidak perlu login ulang.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -93,6 +78,10 @@ class AuthRepository {
       // daripada token yang menggantung di server sampai kedaluwarsa.
     } finally {
       await _tokens.clear();
+      // Cache ikut dibuang. Satu HP di rumah bisa dipakai bergantian oleh
+      // kakak-adik yang sama-sama siswa — beranda milik orang sebelumnya tidak
+      // boleh sempat terlihat sedetik pun oleh yang login berikutnya.
+      await _cache.clear();
     }
   }
 }
@@ -102,5 +91,6 @@ AuthRepository authRepository(Ref ref) {
   return AuthRepository(
     ref.watch(authApiProvider),
     ref.watch(tokenStorageProvider),
+    ref.watch(cacheStoreProvider),
   );
 }

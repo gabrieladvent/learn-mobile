@@ -118,7 +118,7 @@ dengan memperbarui aplikasi, jadi butuh layar dan perilakunya sendiri.
 - [ ] Detail course dengan pengelompokan per topik
 - [ ] Detail materi: teks, link, daftar file
 - [ ] Unduh file + halaman kelola unduhan
-- [ ] Cache Drift + stale-while-revalidate ([06](06-offline-and-sync.md))
+- [~] Cache Drift + stale-while-revalidate ([06](06-offline-and-sync.md)) — **polanya jadi** dan dipakai beranda; layar berikutnya tinggal mengikuti
 - [ ] Pembersihan entri cache yang sudah dicabut server
 - [ ] Profil: lihat, ganti foto, ganti password, logout
 

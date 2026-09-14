@@ -42,17 +42,23 @@ class DashboardStatsRow extends StatelessWidget {
       ),
     ];
 
-    return GridView.count(
+    return GridView.builder(
       padding: EdgeInsets.zero,
-      crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
-      childAspectRatio: 1.65,
-      children: tiles,
+      itemCount: tiles.length,
+      itemBuilder: (context, index) => tiles[index],
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.sm,
+        crossAxisSpacing: AppSpacing.sm,
+        mainAxisExtent: 120 * _textScale(context),
+      ),
     );
   }
+
+  static double _textScale(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6);
 
   static String _formatScore(double score) {
     final rounded = (score * 10).round() / 10;
@@ -95,12 +101,14 @@ class _Tile extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],

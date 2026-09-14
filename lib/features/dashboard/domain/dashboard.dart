@@ -38,9 +38,8 @@ abstract class DashboardStats with _$DashboardStats {
     @JsonKey(name: 'assignments_pending') @Default(0) int assignmentsPending,
     @JsonKey(name: 'assignments_completed')
     @Default(0)
-
     int assignmentsCompleted,
-    
+
     @JsonKey(name: 'exams_completed') @Default(0) int examsCompleted,
     @JsonKey(name: 'avg_score') double? avgScore,
     @JsonKey(name: 'upcoming_exam') UpcomingExam? upcomingExam,
@@ -72,7 +71,7 @@ abstract class DashboardMeta with _$DashboardMeta {
     @JsonKey(name: 'classroom_name') String? classroomName,
     @JsonKey(name: 'academic_year') String? academicYear,
     @JsonKey(name: 'homeroom_teacher_name') String? homeroomTeacherName,
-    
+
     int? semester,
     String? inspire,
   }) = _DashboardMeta;

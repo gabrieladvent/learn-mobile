@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/cache/cached.dart';
 import '../../../core/error/app_failure.dart';
 import '../../../core/theme/app_accents.dart';
+import '../../../core/theme/app_semantic.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/ui/app_background.dart';
 import '../../../core/ui/glass_surface.dart';
@@ -47,10 +49,10 @@ class HomeScreen extends ConsumerWidget {
             ),
             children: [
               const OptionalUpdateBanner(),
-              _ProfileCard(student: student, meta: dashboard.value?.meta),
+              _ProfileCard(student: student, meta: dashboard.value?.value.meta),
               const SizedBox(height: AppSpacing.md),
               if (dashboard.hasValue)
-                _DashboardBody(dashboard: dashboard.requireValue)
+                _DashboardBody(cached: dashboard.requireValue)
               else if (dashboard.hasError)
                 _ErrorState(
                   error: dashboard.error!,
@@ -94,18 +96,23 @@ class _LogoutButton extends StatelessWidget {
 }
 
 class _DashboardBody extends StatelessWidget {
-  const _DashboardBody({required this.dashboard});
+  const _DashboardBody({required this.cached});
 
-  final Dashboard dashboard;
+  final Cached<Dashboard> cached;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final dashboard = cached.value;
     final courses = dashboard.courses;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (cached.refreshFailed) ...[
+          _StaleNotice(cached: cached),
+          const SizedBox(height: AppSpacing.sm),
+        ],
         DashboardStatsRow(stats: dashboard.stats),
         if (dashboard.stats?.upcomingExam != null) ...[
           const SizedBox(height: AppSpacing.md),
@@ -141,6 +148,43 @@ class _DashboardBody extends StatelessWidget {
     );
   }
 }
+
+class _StaleNotice extends StatelessWidget {
+  const _StaleNotice({required this.cached});
+
+  final Cached<Object?> cached;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final beyondSoftLimit = cached.age > _softLimit;
+
+    final color = beyondSoftLimit
+        ? AppSemantic.warning(theme.brightness)
+        : theme.colorScheme.onSurfaceVariant;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.cloud_off_rounded, size: 14, color: color),
+        const SizedBox(width: AppSpacing.xs),
+        Flexible(
+          child: Text(
+            'Terakhir diperbarui ${formatLastUpdated(cached.age)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: beyondSoftLimit ? FontWeight.w600 : null,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+const _softLimit = Duration(minutes: 15);
 
 class _LoadingState extends StatelessWidget {
   const _LoadingState();
