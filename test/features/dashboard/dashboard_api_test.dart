@@ -63,21 +63,22 @@ void main() {
         },
       });
 
-      final dashboard = await _apiWith(adapter).fetch();
+      final payload = await _apiWith(adapter).fetch();
 
       expect(adapter.lastPath, '/dashboard');
-      expect(dashboard.courses.single.subjectName, 'Matematika');
+      // Payload MENTAH, bukan model — inilah yang disimpan apa adanya ke cache.
+      expect((payload['courses'] as List).single, containsPair('subject_name', 'Matematika'));
     });
 
     test('response_data yang tidak ada tidak membuatnya gagal', () async {
-      final dashboard = await _apiWith(
+      final payload = await _apiWith(
         _StubAdapter(200, {
           'response_code': 'success',
           'response_message': 'Berhasil',
         }),
       ).fetch();
 
-      expect(dashboard.courses, isEmpty);
+      expect(payload, isEmpty);
     });
 
     test('kegagalan sampai sebagai AppFailure', () async {

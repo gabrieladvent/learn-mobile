@@ -18,9 +18,7 @@ Future<void> main() async {
     runApp(
       ProviderScope(
         observers: const [AppProviderObserver()],
-        overrides: [
-          appVersionProvider.overrideWithValue(release),
-        ],
+        overrides: [appVersionProvider.overrideWithValue(release)],
         child: const LearnApp(),
       ),
     );

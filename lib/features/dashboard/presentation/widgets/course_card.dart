@@ -82,7 +82,8 @@ class CourseCard extends StatelessWidget {
   static String _badge(String? code, String name) {
     final source = (code == null || code.isEmpty) ? name : code;
 
-    return source.substring(0, source.length < 3 ? source.length : 3)
+    return source
+        .substring(0, source.length < 3 ? source.length : 3)
         .toUpperCase();
   }
 }

@@ -1,8 +1,10 @@
 library;
 
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
 import '../config/app_config.dart';
 
 Future<void> runWithCrashReporting(
@@ -18,7 +20,8 @@ Future<void> runWithCrashReporting(
     options.release = release;
     options.sendDefaultPii = false;
     options.beforeSend = (event, hint) => scrubEvent(event);
-    options.beforeBreadcrumb = (breadcrumb, hint) => scrubBreadcrumb(breadcrumb);
+    options.beforeBreadcrumb = (breadcrumb, hint) =>
+        scrubBreadcrumb(breadcrumb);
   }, appRunner: appRunner);
 }
 
@@ -37,13 +40,6 @@ typedef ScopeConfigurator = FutureOr<void> Function(ScopeCallback callback);
 SentryEvent? scrubEvent(SentryEvent event) {
   event.request = _scrubRequest(event.request);
   event.user = _scrubUser(event.user);
-  // JANGAN HAPUS baris `ignore` di bawah: itu direktif untuk analyzer, bukan
-  // komentar penjelas. Tanpanya `flutter analyze` gagal dan CI merah.
-  //
-  // `extra` memang sudah usang, tapi selama field-nya masih ada ia masih bisa
-  // mengangkut data — dan field yang tidak lagi diperhatikan siapa pun justru
-  // tempat paling mungkin sebuah kebocoran menetap.
-  // ignore: deprecated_member_use
   event.extra = _scrubValue(event.extra) as Map<String, dynamic>?;
 
   for (final key in event.contexts.keys.toList()) {

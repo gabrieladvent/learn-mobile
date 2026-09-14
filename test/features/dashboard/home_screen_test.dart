@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:learn_mobile/core/cache/cached.dart';
 import 'package:learn_mobile/core/error/app_failure.dart';
 import 'package:learn_mobile/core/theme/app_theme.dart';
 import 'package:learn_mobile/features/auth/application/auth_controller.dart';
@@ -28,22 +29,38 @@ class _FakeAuth extends AuthController {
 
 /// Repository tiruan: menentukan apa yang dilihat layar tanpa jaringan.
 class _FakeRepository implements DashboardRepository {
-  _FakeRepository(this._result);
+  _FakeRepository(
+    this._result, {
+    this.isFresh = true,
+    this.refreshFailed = false,
+    this.age = Duration.zero,
+  });
 
   final Object _result;
+  final bool isFresh;
+  final bool refreshFailed;
+  final Duration age;
 
   @override
-  Future<Dashboard> load() async {
-    if (_result is Dashboard) return _result;
+  Stream<Cached<Dashboard>> watch() async* {
+    final result = _result;
 
-    throw _result;
+    if (result is! Dashboard) throw result;
+
+    yield Cached(
+      value: result,
+      fetchedAt: DateTime.now().subtract(age),
+      isFresh: isFresh,
+      refreshFailed: refreshFailed,
+    );
   }
 }
 
 /// Tidak pernah selesai — dipakai untuk menahan layar di keadaan memuat.
 class _PendingRepository implements DashboardRepository {
   @override
-  Future<Dashboard> load() => Completer<Dashboard>().future;
+  Stream<Cached<Dashboard>> watch() =>
+      Stream.fromFuture(Completer<Cached<Dashboard>>().future);
 }
 
 const _dashboard = Dashboard(
@@ -151,6 +168,50 @@ void main() {
       find.text('Hubungi wali kelasmu kalau ini terasa keliru.'),
       findsOneWidget,
     );
+  });
+
+  // Inti stale-while-revalidate: siswa bersinyal buruk melihat DATANYA, bukan
+  // layar error — hanya dengan keterangan kapan terakhir diperbarui.
+  testWidgets('salinan tersimpan tampil dengan penanda, bukan layar error', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeRepository(
+        _dashboard,
+        isFresh: false,
+        refreshFailed: true,
+        age: const Duration(hours: 2),
+      ),
+    );
+
+    expect(find.text('Matematika'), findsOneWidget);
+    expect(find.text('Terakhir diperbarui 2 jam lalu'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsNothing);
+  });
+
+  testWidgets('data segar tidak memunculkan penanda apa pun', (tester) async {
+    await pump(tester, _FakeRepository(_dashboard));
+
+    expect(find.textContaining('Terakhir diperbarui'), findsNothing);
+  });
+
+  // Salinan yang tampil sesaat sebelum jaringan menjawab hidup kurang dari
+  // sedetik. Memberinya penanda membuat seluruh isi beranda melompat begitu
+  // data segar datang — untuk keterangan yang tidak sempat dibaca siapa pun.
+  testWidgets('salinan sementara sebelum jaringan menjawab tidak diberi '
+      'penanda', (tester) async {
+    await pump(
+      tester,
+      _FakeRepository(
+        _dashboard,
+        isFresh: false,
+        age: const Duration(hours: 2),
+      ),
+    );
+
+    expect(find.text('Matematika'), findsOneWidget);
+    expect(find.textContaining('Terakhir diperbarui'), findsNothing);
   });
 
   testWidgets('rata-rata kosong ditampilkan sebagai —, bukan 0', (
