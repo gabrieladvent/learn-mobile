@@ -78,6 +78,10 @@ CacheStore cacheStore(Ref ref) => CacheStore(ref.watch(appDatabaseProvider));
 abstract final class CacheKeys {
   static const dashboard = 'dashboard';
 
+  static const todo = 'todo';
+
+  static const todoSeen = 'todo:seen';
+
   static String course(String id) => 'course:$id';
 
   static String material(String id) => 'material:$id';

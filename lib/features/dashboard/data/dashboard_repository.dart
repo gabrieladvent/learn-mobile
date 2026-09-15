@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/cache/cache_store.dart';
 import '../../../core/cache/cached.dart';
+import '../../../core/cache/stale_while_revalidate.dart';
 import '../domain/dashboard.dart';
 import 'dashboard_api.dart';
 
@@ -13,37 +14,12 @@ class DashboardRepository {
   final DashboardApi _api;
   final CacheStore _cache;
 
-  Stream<Cached<Dashboard>> watch() async* {
-    final cached = await _cache.read(CacheKeys.dashboard);
-
-    if (cached != null) {
-      yield Cached(
-        value: Dashboard.fromJson(cached.payload),
-        fetchedAt: cached.fetchedAt,
-        isFresh: false,
-      );
-    }
-
-    try {
-      final payload = await _api.fetch();
-      await _cache.write(CacheKeys.dashboard, payload);
-
-      yield Cached(
-        value: Dashboard.fromJson(payload),
-        fetchedAt: DateTime.now(),
-        isFresh: true,
-      );
-    } catch (_) {
-      if (cached == null) rethrow;
-
-      yield Cached(
-        value: Dashboard.fromJson(cached.payload),
-        fetchedAt: cached.fetchedAt,
-        isFresh: false,
-        refreshFailed: true,
-      );
-    }
-  }
+  Stream<Cached<Dashboard>> watch() => staleWhileRevalidate(
+    cache: _cache,
+    key: CacheKeys.dashboard,
+    fetch: _api.fetch,
+    decode: Dashboard.fromJson,
+  );
 
   Future<void> setPinned(String courseId, {required bool pinned}) =>
       _api.setPinned(courseId, pinned: pinned);

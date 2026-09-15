@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/cache/cached.dart';
 import '../../../core/error/app_failure.dart';
 import '../../../core/theme/app_accents.dart';
-import '../../../core/theme/app_semantic.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/ui/app_background.dart';
 import '../../../core/ui/app_toast.dart';
 import '../../../core/ui/glass_surface.dart';
+import '../../../core/ui/load_error_card.dart';
+import '../../../core/ui/skeleton_box.dart';
+import '../../../core/ui/stale_notice.dart';
 import '../../app_update/presentation/optional_update_banner.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/student.dart';
@@ -56,8 +58,9 @@ class HomeScreen extends ConsumerWidget {
               if (dashboard.hasValue)
                 _DashboardBody(cached: dashboard.requireValue)
               else if (dashboard.hasError)
-                _ErrorState(
+                LoadErrorCard(
                   error: dashboard.error!,
+                  fallbackMessage: 'Beranda tidak bisa dimuat.',
                   onRetry: () => ref.invalidate(dashboardProvider),
                 )
               else
@@ -137,7 +140,7 @@ class _DashboardBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (cached.refreshFailed) ...[
-          _StaleNotice(cached: cached),
+          StaleNotice(cached: cached),
           const SizedBox(height: AppSpacing.sm),
         ],
         DashboardStatsRow(stats: dashboard.stats),
@@ -206,43 +209,6 @@ class _DashboardBody extends ConsumerWidget {
   }
 }
 
-class _StaleNotice extends StatelessWidget {
-  const _StaleNotice({required this.cached});
-
-  final Cached<Object?> cached;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final beyondSoftLimit = cached.age > _softLimit;
-
-    final color = beyondSoftLimit
-        ? AppSemantic.warning(theme.brightness)
-        : theme.colorScheme.onSurfaceVariant;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.cloud_off_rounded, size: 14, color: color),
-        const SizedBox(width: AppSpacing.xs),
-        Flexible(
-          child: Text(
-            'Terakhir diperbarui ${formatLastUpdated(cached.age)}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: beyondSoftLimit ? FontWeight.w600 : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-const _softLimit = Duration(minutes: 15);
-
 class _LoadingState extends StatelessWidget {
   const _LoadingState();
 
@@ -258,78 +224,19 @@ class _LoadingState extends StatelessWidget {
           mainAxisSpacing: AppSpacing.sm,
           crossAxisSpacing: AppSpacing.sm,
           childAspectRatio: 1.65,
-          children: const [_Skeleton(), _Skeleton(), _Skeleton(), _Skeleton()],
+          children: const [
+            SkeletonBox(),
+            SkeletonBox(),
+            SkeletonBox(),
+            SkeletonBox(),
+          ],
         ),
         const SizedBox(height: AppSpacing.lg),
         for (var i = 0; i < 3; i++) ...[
-          const _Skeleton(height: 78),
+          const SkeletonBox(height: 78),
           const SizedBox(height: AppSpacing.sm),
         ],
       ],
-    );
-  }
-}
-
-class _Skeleton extends StatelessWidget {
-  const _Skeleton({this.height});
-
-  final double? height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: 'Memuat',
-      child: Container(
-        height: height,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onSurface
-              .withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(AppSpacing.radius),
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.error, required this.onRetry});
-
-  final Object error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final message = error is AppFailure
-        ? (error as AppFailure).message
-        : 'Beranda tidak bisa dimuat.';
-    final offline = error is NetworkFailure;
-
-    return SoftCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      radius: AppSpacing.radiusLg,
-      child: Column(
-        children: [
-          Icon(
-            offline ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
-            size: 36,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          FilledButton.tonalIcon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Coba lagi'),
-          ),
-        ],
-      ),
     );
   }
 }

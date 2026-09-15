@@ -113,5 +113,16 @@ void main() {
       expect(redirect(session: _session(), here: '/'), '/home');
       expect(redirect(session: _session(), here: '/login'), '/home');
     });
+
+    // Tab to-do bukan pintu masuk: siswa yang membukanya tidak boleh
+    // dilempar balik ke beranda, tapi tetap dijaga seperti rute lain.
+    test('tab to-do dibiarkan untuk siswa yang sudah login penuh', () {
+      expect(redirect(session: _session(), here: '/todo'), isNull);
+      expect(redirect(here: '/todo'), '/login');
+      expect(
+        redirect(session: _session(mustChangePassword: true), here: '/todo'),
+        '/change-password',
+      );
+    });
   });
 }
