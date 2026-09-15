@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/format/schedule_format.dart';
 import '../../../../core/theme/app_semantic.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/ui/glass_surface.dart';
@@ -76,26 +77,7 @@ class UpcomingExamCard extends StatelessWidget {
 @visibleForTesting
 String formatExamSchedule(DateTime startsAt) {
   final local = startsAt.toLocal();
-  final day = _days[local.weekday - 1];
-  final month = _months[local.month - 1];
   final minute = local.minute.toString().padLeft(2, '0');
 
-  return '$day, ${local.day} $month ${local.hour}.$minute';
+  return '${formatDayMonth(local)} ${local.hour}.$minute';
 }
-
-const _days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-
-const _months = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'Mei',
-  'Jun',
-  'Jul',
-  'Agu',
-  'Sep',
-  'Okt',
-  'Nov',
-  'Des',
-];

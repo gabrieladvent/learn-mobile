@@ -13,7 +13,9 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/onboarding/application/intro_controller.dart';
 import '../features/onboarding/presentation/intro_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
+import '../features/todo/presentation/todo_screen.dart';
 import '../features/app_update/presentation/force_update_screen.dart';
+import 'home_shell.dart';
 
 part 'router.g.dart';
 
@@ -44,7 +46,7 @@ GoRouter router(Ref ref) {
         path: '/change-password',
         pageBuilder: _page(const ChangePasswordScreen()),
       ),
-      GoRoute(path: '/home', pageBuilder: _page(const HomeScreen())),
+      homeShellRoute(),
       GoRoute(
         path: '/force-update',
         pageBuilder: _page(const ForceUpdateScreen()),
@@ -86,8 +88,26 @@ String? resolveRedirect({
   return null;
 }
 
+@visibleForTesting
+StatefulShellRoute homeShellRoute() => StatefulShellRoute.indexedStack(
+  pageBuilder: (context, state, navigationShell) =>
+      _transitionPage(state, HomeShell(navigationShell: navigationShell)),
+  branches: [
+    StatefulShellBranch(
+      routes: [GoRoute(path: '/home', builder: (_, _) => const HomeScreen())],
+    ),
+    StatefulShellBranch(
+      routes: [GoRoute(path: '/todo', builder: (_, _) => const TodoScreen())],
+    ),
+  ],
+);
+
 GoRouterPageBuilder _page(Widget child) {
-  return (context, state) => CustomTransitionPage<void>(
+  return (context, state) => _transitionPage(state, child);
+}
+
+Page<void> _transitionPage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
     transitionDuration: AppMotion.slow,
